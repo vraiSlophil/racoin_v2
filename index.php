@@ -175,7 +175,6 @@ $app->group('/api', function () use ($app, $twig, $menu, $chemin, $cat) {
             $return      = Annonce::select($annonceList)->find($id);
 
             if (isset($return)) {
-                $response->headers->set('Content-Type', 'application/json');
                 $return->categorie     = Categorie::find($return->categorie);
                 $return->annonceur     = Annonceur::select('email', 'nom_annonceur', 'telephone')
                     ->find($return->annonceur);
@@ -183,9 +182,10 @@ $app->group('/api', function () use ($app, $twig, $menu, $chemin, $cat) {
                 $links                 = [];
                 $links['self']['href'] = '/api/annonce/' . $return->id_annonce;
                 $return->links         = $links;
-                echo $return->toJson();
+                $response->getBody()->write($return->toJson());
+                return $response->withHeader('Content-Type', 'application/json');
             } else {
-                $app->notFound();
+                return $response->withStatus(404);
             }
         });
     });
@@ -194,7 +194,6 @@ $app->group('/api', function () use ($app, $twig, $menu, $chemin, $cat) {
 
         $app->get('/', function ($request, $response) use ($app) {
             $annonceList = ['id_annonce', 'prix', 'titre', 'ville'];
-            $response->headers->set('Content-Type', 'application/json');
             $a     = Annonce::all($annonceList);
             $links = [];
             foreach ($a as $ann) {
@@ -203,7 +202,8 @@ $app->group('/api', function () use ($app, $twig, $menu, $chemin, $cat) {
             }
             $links['self']['href'] = '/api/annonces/';
             $a->links              = $links;
-            echo $a->toJson();
+            $response->getBody()->write($a->toJson());
+            return $response->withHeader('Content-Type', 'application/json');
         });
     });
 
@@ -212,7 +212,6 @@ $app->group('/api', function () use ($app, $twig, $menu, $chemin, $cat) {
 
         $app->get('/{id}', function ($request, $response, $arg) use ($app) {
             $id = $arg['id'];
-            $response->headers->set('Content-Type', 'application/json');
             $a     = Annonce::select('id_annonce', 'prix', 'titre', 'ville')
                 ->where('id_categorie', '=', $id)
                 ->get();
@@ -227,13 +226,13 @@ $app->group('/api', function () use ($app, $twig, $menu, $chemin, $cat) {
             $links['self']['href'] = '/api/categorie/' . $id;
             $c->links              = $links;
             $c->annonces           = $a;
-            echo $c->toJson();
+            $response->getBody()->write($c->toJson());
+            return $response->withHeader('Content-Type', 'application/json');
         });
     });
 
     $app->group('/categories(/)', function () use ($app) {
         $app->get('/', function ($request, $response, $arg) use ($app) {
-            $response->headers->set('Content-Type', 'application/json');
             $c     = Categorie::get();
             $links = [];
             foreach ($c as $cat) {
@@ -242,7 +241,8 @@ $app->group('/api', function () use ($app, $twig, $menu, $chemin, $cat) {
             }
             $links['self']['href'] = '/api/categories/';
             $c->links              = $links;
-            echo $c->toJson();
+            $response->getBody()->write($c->toJson());
+            return $response->withHeader('Content-Type', 'application/json');
         });
     });
 

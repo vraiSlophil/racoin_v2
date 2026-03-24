@@ -18,3 +18,13 @@ Pour lancer l'application, il suffit de lancer la commande suivante:
 ```bash
 docker compose up
 ```
+
+## Tests
+La suite de tests de caractérisation réinitialise la base avant chaque test pour figer les comportements actuels sur des cas légaux et illégaux.
+
+```bash
+cp config/config.ini.dist config/config.ini
+docker compose run --rm php composer install
+docker compose up -d db php
+docker compose exec php composer test
+```

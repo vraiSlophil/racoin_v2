@@ -9,6 +9,7 @@
 ### Composer ###
 composer.phar
 vendor/
+.phpunit.cache/
 
 ### Linux ###
 *~
