@@ -4,11 +4,11 @@ namespace controller;
 
 use model\Departement;
 
-class getDepartment {
+class DepartementController {
 
     protected $departments = array();
 
-    public function getAllDepartments() {
+    public function listerDepartements() {
         return Departement::orderBy('nom_departement')->get()->toArray();
     }
 }

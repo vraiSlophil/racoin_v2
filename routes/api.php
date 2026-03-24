@@ -1,12 +1,13 @@
 <?php
 
+use controller\CleApiController;
 use model\Annonce;
 use model\Annonceur;
 use model\Categorie;
 use model\Departement;
 
 $app->get('/api(/)', function () use ($twig, $chemin) {
-    $template = $twig->load('api.html.twig');
+    $template = $twig->load('api-documentation.html.twig');
     $menu     = [
         [
             'href' => $chemin,
@@ -109,13 +110,13 @@ $app->group('/api', function () use ($app, $twig, $menu, $chemin, $cat) {
     });
 
     $app->get('/key', function () use ($twig, $menu, $chemin, $cat) {
-        $generateur = new controller\KeyGenerator();
-        $generateur->show($twig, $menu, $chemin, $cat->getCategories());
+        $generateur = new CleApiController();
+        $generateur->afficherFormulaireCle($twig, $menu, $chemin, $cat->listerCategories());
     });
 
     $app->post('/key', function () use ($twig, $menu, $chemin, $cat) {
         $nom        = $_POST['nom'];
-        $generateur = new controller\KeyGenerator();
-        $generateur->generateKey($twig, $menu, $chemin, $cat->getCategories(), $nom);
+        $generateur = new CleApiController();
+        $generateur->genererCle($twig, $menu, $chemin, $cat->listerCategories(), $nom);
     });
 });

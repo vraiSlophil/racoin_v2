@@ -4,14 +4,14 @@ namespace controller;
 use AllowDynamicProperties;
 use model\Annonce;
 use model\Annonceur;
+use model\Categorie;
 use model\Departement;
 use model\Photo;
-use model\Categorie;
 
-#[AllowDynamicProperties] class item {
+#[AllowDynamicProperties] class AnnonceController {
     public function __construct(){
     }
-    function afficherItem($twig, $menu, $chemin, $n, $cat): void
+    function afficherAnnonce($twig, $menu, $chemin, $n, $cat): void
     {
 
         $this->annonce = Annonce::find($n);
@@ -32,7 +32,7 @@ use model\Categorie;
         $this->annonceur = Annonceur::find($this->annonce->id_annonceur);
         $this->departement = Departement::find($this->annonce->id_departement );
         $this->photo = Photo::where('id_annonce', '=', $n)->get();
-        $template = $twig->load("item.html.twig");
+        $template = $twig->load("annonce-detail.html.twig");
         echo $template->render(array("breadcrumb" => $menu,
             "chemin" => $chemin,
             "annonce" => $this->annonce,
@@ -42,20 +42,20 @@ use model\Categorie;
             "categories" => $cat));
     }
 
-    function supprimerItemGet($twig, $menu, $chemin,$n){
+    function afficherFormulaireSuppression($twig, $menu, $chemin,$n){
         $this->annonce = Annonce::find($n);
         if(!isset($this->annonce)){
             echo "404";
             return;
         }
-        $template = $twig->load("delGet.html.twig");
+        $template = $twig->load("annonce-suppression-formulaire.html.twig");
         echo $template->render(array("breadcrumb" => $menu,
             "chemin" => $chemin,
             "annonce" => $this->annonce));
     }
 
 
-    function supprimerItemPost($twig, $menu, $chemin, $n, $cat){
+    function supprimerAnnonce($twig, $menu, $chemin, $n, $cat){
         $this->annonce = Annonce::find($n);
         $reponse = false;
         if(password_verify($_POST["pass"],$this->annonce->mdp)){
@@ -65,7 +65,7 @@ use model\Categorie;
 
         }
 
-        $template = $twig->load("delPost.html.twig");
+        $template = $twig->load("annonce-suppression-resultat.html.twig");
         echo $template->render(array("breadcrumb" => $menu,
             "chemin" => $chemin,
             "annonce" => $this->annonce,
@@ -73,19 +73,19 @@ use model\Categorie;
             "categories" => $cat));
     }
 
-    function modifyGet($twig, $menu, $chemin, $id){
+    function afficherAuthentificationModification($twig, $menu, $chemin, $id){
         $this->annonce = Annonce::find($id);
         if(!isset($this->annonce)){
             echo "404";
             return;
         }
-        $template = $twig->load("modifyGet.html.twig");
+        $template = $twig->load("annonce-modification-authentification.html.twig");
         echo $template->render(array("breadcrumb" => $menu,
             "chemin" => $chemin,
             "annonce" => $this->annonce));
     }
 
-    function modifyPost($twig, $menu, $chemin, $n, $cat, $dpt){
+    function afficherFormulaireModification($twig, $menu, $chemin, $n, $cat, $dpt){
         $this->annonce = Annonce::find($n);
         $this->annonceur = Annonceur::find($this->annonce->id_annonceur);
         $this->categItem = Categorie::find($this->annonce->id_categorie)->nom_categorie;
@@ -97,7 +97,7 @@ use model\Categorie;
 
         }
 
-        $template = $twig->load("modifyPost.html.twig");
+        $template = $twig->load("annonce-modification-formulaire.html.twig");
         echo $template->render(array("breadcrumb" => $menu,
             "chemin" => $chemin,
             "annonce" => $this->annonce,
@@ -109,7 +109,7 @@ use model\Categorie;
             "categItem" => $this->categItem));
     }
 
-    function edit($twig, $menu, $chemin, $allPostVars, $id){
+    function modifierAnnonce($twig, $menu, $chemin, $allPostVars, $id){
 
         date_default_timezone_set('Europe/Paris');
 
@@ -180,7 +180,7 @@ use model\Categorie;
         // S'il y a des erreurs on redirige vers la page d'erreur
         if (!empty($errors)) {
 
-            $template = $twig->load("add-error.html.twig");
+            $template = $twig->load("annonce-formulaire-erreurs.html.twig");
             echo $template->render(array(
                     "breadcrumb" => $menu,
                     "chemin" => $chemin,
@@ -209,7 +209,7 @@ use model\Categorie;
             $this->annonceur->annonce()->save($this->annonce);
 
 
-            $template = $twig->load("modif-confirm.html.twig");
+            $template = $twig->load("annonce-modification-confirmation.html.twig");
             echo $template->render(array("breadcrumb" => $menu, "chemin" => $chemin));
         }
     }

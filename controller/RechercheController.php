@@ -5,10 +5,10 @@ namespace controller;
 use model\Annonce;
 use model\Categorie;
 
-class Search {
+class RechercheController {
 
-    function show($twig, $menu, $chemin, $cat) {
-        $template = $twig->load("search.html.twig");
+    function afficherFormulaireRecherche($twig, $menu, $chemin, $cat) {
+        $template = $twig->load("recherche-formulaire.html.twig");
         $menu = array(
             array('href' => $chemin,
                 'text' => 'Acceuil'),
@@ -18,8 +18,8 @@ class Search {
         echo $template->render(array("breadcrumb" => $menu, "chemin" => $chemin, "categories" => $cat));
     }
 
-    function research($array, $twig, $menu, $chemin, $cat) {
-        $template = $twig->load("index.html.twig");
+    function rechercherAnnonces($array, $twig, $menu, $chemin, $cat) {
+        $template = $twig->load("liste-annonces.html.twig");
         $menu = array(
             array('href' => $chemin,
                 'text' => 'Acceuil'),

@@ -2,20 +2,20 @@
 
 namespace controller;
 
-use model\Categorie;
 use model\Annonce;
-use model\Photo;
 use model\Annonceur;
+use model\Categorie;
+use model\Photo;
 
-class getCategorie {
+class CategorieController {
 
     protected $categories = array();
 
-    public function getCategories() {
+    public function listerCategories() {
         return Categorie::orderBy('nom_categorie')->get()->toArray();
     }
 
-    public function getCategorieContent($chemin, $n) {
+    public function chargerContenuCategorie($chemin, $n) {
         $tmp = Annonce::with("Annonceur")->orderBy('id_annonce','desc')->where('id_categorie', "=", $n)->get();
         $annonce = [];
         foreach($tmp as $t) {
@@ -35,8 +35,8 @@ class getCategorie {
         $this->annonce = $annonce;
     }
 
-    public function displayCategorie($twig, $menu, $chemin, $cat, $n) {
-        $template = $twig->load("index.html.twig");
+    public function afficherCategorie($twig, $menu, $chemin, $cat, $n) {
+        $template = $twig->load("liste-annonces.html.twig");
         $menu = array(
             array('href' => $chemin,
                 'text' => 'Acceuil'),
@@ -44,7 +44,7 @@ class getCategorie {
                 'text' => Categorie::find($n)->nom_categorie)
         );
 
-        $this->getCategorieContent($chemin, $n);
+        $this->chargerContenuCategorie($chemin, $n);
         echo $template->render(array(
             "breadcrumb" => $menu,
             "chemin" => $chemin,

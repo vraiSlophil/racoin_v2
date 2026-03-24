@@ -3,16 +3,16 @@
 namespace controller;
 
 use model\Annonce;
-use model\Photo;
 use model\Annonceur;
+use model\Photo;
 
-class index
+class AccueilController
 {
     protected $annonce = array();
 
-    public function displayAllAnnonce($twig, $menu, $chemin, $cat)
+    public function afficherAccueil($twig, $menu, $chemin, $cat)
     {
-        $template = $twig->load("index.html.twig");
+        $template = $twig->load("liste-annonces.html.twig");
         $menu     = array(
             array(
                 'href' => $chemin,
@@ -20,7 +20,7 @@ class index
             ),
         );
 
-        $this->getAll($chemin);
+        $this->chargerAnnoncesAccueil($chemin);
         echo $template->render(array(
             "breadcrumb" => $menu,
             "chemin"     => $chemin,
@@ -29,7 +29,7 @@ class index
         ));
     }
 
-    public function getAll($chemin)
+    public function chargerAnnoncesAccueil($chemin)
     {
         $tmp     = Annonce::with("Annonceur")->orderBy('id_annonce', 'desc')->take(12)->get();
         $annonce = [];

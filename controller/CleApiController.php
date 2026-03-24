@@ -4,10 +4,10 @@ namespace controller;
 
 use model\ApiKey;
 
-class KeyGenerator {
+class CleApiController {
 
-    function show($twig, $menu, $chemin, $cat) {
-        $template = $twig->load("key-generator.html.twig");
+    function afficherFormulaireCle($twig, $menu, $chemin, $cat) {
+        $template = $twig->load("cle-api-formulaire.html.twig");
         $menu = array(
             array('href' => $chemin,
                 'text' => 'Acceuil'),
@@ -17,11 +17,11 @@ class KeyGenerator {
         echo $template->render(array("breadcrumb" => $menu, "chemin" => $chemin, "categories" => $cat));
     }
 
-    function generateKey($twig, $menu, $chemin, $cat, $nom) {
+    function genererCle($twig, $menu, $chemin, $cat, $nom) {
         $nospace_nom = str_replace(' ', '', $nom);
 
         if($nospace_nom === '') {
-            $template = $twig->load("key-generator-error.html.twig");
+            $template = $twig->load("cle-api-erreur.html.twig");
             $menu = array(
                 array('href' => $chemin,
                     'text' => 'Acceuil'),
@@ -31,7 +31,7 @@ class KeyGenerator {
 
             echo $template->render(array("breadcrumb" => $menu, "chemin" => $chemin, "categories" => $cat));
         } else {
-            $template = $twig->load("key-generator-result.html.twig");
+            $template = $twig->load("cle-api-resultat.html.twig");
             $menu = array(
                 array('href' => $chemin,
                     'text' => 'Acceuil'),

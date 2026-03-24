@@ -2,8 +2,8 @@
 
 require __DIR__ . '/../vendor/autoload.php';
 
-use controller\getCategorie;
-use controller\getDepartment;
+use controller\CategorieController;
+use controller\DepartementController;
 use db\connection;
 use Slim\App;
 use Slim\Http\Request;
@@ -61,8 +61,8 @@ $menu = [
 
 $chemin = dirname($_SERVER['SCRIPT_NAME']);
 
-$cat = new getCategorie();
-$dpt = new getDepartment();
+$cat = new CategorieController();
+$dpt = new DepartementController();
 
 return [
     'app' => $app,

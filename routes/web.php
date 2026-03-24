@@ -1,81 +1,85 @@
 <?php
 
-use controller\index as ControleurAccueil;
-use controller\item as ControleurAnnonce;
+use controller\AccueilController;
+use controller\AjoutAnnonceController;
+use controller\AnnonceController;
+use controller\AnnonceurController;
+use controller\CategorieController;
+use controller\RechercheController;
 
 $app->get('/', function () use ($twig, $menu, $chemin, $cat) {
-    $index = new ControleurAccueil();
-    $index->displayAllAnnonce($twig, $menu, $chemin, $cat->getCategories());
+    $accueil = new AccueilController();
+    $accueil->afficherAccueil($twig, $menu, $chemin, $cat->listerCategories());
 });
 
 $app->get('/item/{n}', function ($request, $response, $arg) use ($twig, $menu, $chemin, $cat) {
-    $n    = $arg['n'];
-    $item = new ControleurAnnonce();
-    $item->afficherItem($twig, $menu, $chemin, $n, $cat->getCategories());
+    $n       = $arg['n'];
+    $annonce = new AnnonceController();
+    $annonce->afficherAnnonce($twig, $menu, $chemin, $n, $cat->listerCategories());
 });
 
 $app->get('/add', function () use ($twig, $menu, $chemin, $cat, $dpt) {
-    $ajout = new controller\addItem();
-    $ajout->addItemView($twig, $menu, $chemin, $cat->getCategories(), $dpt->getAllDepartments());
+    $ajout = new AjoutAnnonceController();
+    $ajout->afficherFormulaireAjout($twig, $menu, $chemin, $cat->listerCategories(), $dpt->listerDepartements());
 });
 
 $app->post('/add', function ($request) use ($twig, $menu, $chemin) {
     $allPostVars = $request->getParsedBody();
-    $ajout       = new controller\addItem();
-    $ajout->addNewItem($twig, $menu, $chemin, $allPostVars);
+    $ajout       = new AjoutAnnonceController();
+    $ajout->ajouterAnnonce($twig, $menu, $chemin, $allPostVars);
 });
 
 $app->get('/item/{id}/edit', function ($request, $response, $arg) use ($twig, $menu, $chemin) {
-    $id   = $arg['id'];
-    $item = new ControleurAnnonce();
-    $item->modifyGet($twig, $menu, $chemin, $id);
+    $id      = $arg['id'];
+    $annonce = new AnnonceController();
+    $annonce->afficherAuthentificationModification($twig, $menu, $chemin, $id);
 });
 
 $app->post('/item/{id}/edit', function ($request, $response, $arg) use ($twig, $menu, $chemin, $cat, $dpt) {
     $id          = $arg['id'];
     $allPostVars = $request->getParsedBody();
-    $item        = new ControleurAnnonce();
-    $item->modifyPost($twig, $menu, $chemin, $id, $allPostVars, $cat->getCategories(), $dpt->getAllDepartments());
+    $annonce     = new AnnonceController();
+    $annonce->afficherFormulaireModification($twig, $menu, $chemin, $id, $allPostVars, $cat->listerCategories(), $dpt->listerDepartements());
 });
 
 $app->map(['GET, POST'], '/item/{id}/confirm', function ($request, $response, $arg) use ($twig, $menu, $chemin) {
     $id          = $arg['id'];
     $allPostVars = $request->getParsedBody();
-    $item        = new ControleurAnnonce();
-    $item->edit($twig, $menu, $chemin, $id, $allPostVars);
+    $annonce     = new AnnonceController();
+    $annonce->modifierAnnonce($twig, $menu, $chemin, $id, $allPostVars);
 });
 
 $app->get('/search', function () use ($twig, $menu, $chemin, $cat) {
-    $recherche = new controller\Search();
-    $recherche->show($twig, $menu, $chemin, $cat->getCategories());
+    $recherche = new RechercheController();
+    $recherche->afficherFormulaireRecherche($twig, $menu, $chemin, $cat->listerCategories());
 });
 
 $app->post('/search', function ($request, $response) use ($twig, $menu, $chemin, $cat) {
     $filtres   = $request->getParsedBody();
-    $recherche = new controller\Search();
-    $recherche->research($filtres, $twig, $menu, $chemin, $cat->getCategories());
+    $recherche = new RechercheController();
+    $recherche->rechercherAnnonces($filtres, $twig, $menu, $chemin, $cat->listerCategories());
 });
 
 $app->get('/annonceur/{n}', function ($request, $response, $arg) use ($twig, $menu, $chemin, $cat) {
     $n         = $arg['n'];
-    $annonceur = new controller\viewAnnonceur();
-    $annonceur->afficherAnnonceur($twig, $menu, $chemin, $n, $cat->getCategories());
+    $annonceur = new AnnonceurController();
+    $annonceur->afficherAnnonceur($twig, $menu, $chemin, $n, $cat->listerCategories());
 });
 
 $app->get('/del/{n}', function ($request, $response, $arg) use ($twig, $menu, $chemin) {
-    $n    = $arg['n'];
-    $item = new ControleurAnnonce();
-    $item->supprimerItemGet($twig, $menu, $chemin, $n);
+    $n       = $arg['n'];
+    $annonce = new AnnonceController();
+    $annonce->afficherFormulaireSuppression($twig, $menu, $chemin, $n);
 });
 
 $app->post('/del/{n}', function ($request, $response, $arg) use ($twig, $menu, $chemin, $cat) {
-    $n    = $arg['n'];
-    $item = new ControleurAnnonce();
-    $item->supprimerItemPost($twig, $menu, $chemin, $n, $cat->getCategories());
+    $n       = $arg['n'];
+    $annonce = new AnnonceController();
+    $annonce->supprimerAnnonce($twig, $menu, $chemin, $n, $cat->listerCategories());
 });
 
 $app->get('/cat/{n}', function ($request, $response, $arg) use ($twig, $menu, $chemin, $cat) {
     $n         = $arg['n'];
-    $categorie = new controller\getCategorie();
-    $categorie->displayCategorie($twig, $menu, $chemin, $cat->getCategories(), $n);
+    $categorie = new CategorieController();
+    $categorie->afficherCategorie($twig, $menu, $chemin, $cat->listerCategories(), $n);
 });

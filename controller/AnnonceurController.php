@@ -11,7 +11,7 @@ use model\Annonce;
 use model\Annonceur;
 use model\Photo;
 
-class viewAnnonceur {
+class AnnonceurController {
     public function __construct(){
     }
     function afficherAnnonceur($twig, $menu, $chemin, $n, $cat) {
@@ -35,7 +35,7 @@ class viewAnnonceur {
 
             $annonces[] = $a;
         }
-        $template = $twig->load("annonceur.html.twig");
+        $template = $twig->load("annonceur-detail.html.twig");
         echo $template->render(array('nom' => $this->annonceur,
             "chemin" => $chemin,
             "annonces" => $annonces,
