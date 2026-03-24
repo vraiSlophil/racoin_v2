@@ -7,11 +7,33 @@ use App\Model\Annonce;
 use App\Model\Annonceur;
 use App\Model\Categorie;
 use App\Model\Departement;
+use App\OpenApi\OpenApiDocumentFactory;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Routing\RouteCollectorProxy;
 
-$app->group('/api', function (RouteCollectorProxy $group) use ($twig, $menu, $chemin, $cat) {
+$openApiDocumentFactory = new OpenApiDocumentFactory();
+
+$app->group('/api', function (RouteCollectorProxy $group) use ($twig, $menu, $chemin, $cat, $openApiDocumentFactory) {
+    $group->get('/openapi', function (ServerRequestInterface $request, ResponseInterface $response) use ($openApiDocumentFactory, $chemin): ResponseInterface {
+        $uri = $request->getUri();
+        $basePath = rtrim($chemin, '/');
+        $serverUrl = $basePath === '' ? '/' : $basePath;
+
+        if ($uri->getAuthority() !== '') {
+            $serverUrl = sprintf(
+                '%s://%s%s',
+                $uri->getScheme() === '' ? 'http' : $uri->getScheme(),
+                $uri->getAuthority(),
+                $serverUrl === '/' ? '' : $serverUrl
+            );
+        }
+
+        $response->getBody()->write($openApiDocumentFactory->generateJson($serverUrl));
+
+        return $response->withHeader('Content-Type', 'application/json');
+    });
+
     $group->get('', function (ServerRequestInterface $request, ResponseInterface $response) use ($twig, $chemin): ResponseInterface {
         $template = $twig->load('api-documentation.html.twig');
         $menu = [
@@ -25,7 +47,12 @@ $app->group('/api', function (RouteCollectorProxy $group) use ($twig, $menu, $ch
             ],
         ];
 
-        echo $template->render(['breadcrumb' => $menu, 'chemin' => $chemin]);
+        echo $template->render([
+            'breadcrumb' => $menu,
+            'chemin' => $chemin,
+            'open_api_url' => $chemin . 'openapi.json',
+            'swagger_source_url' => $chemin . 'api/openapi',
+        ]);
 
         return $response;
     });

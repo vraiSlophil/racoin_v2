@@ -6,7 +6,7 @@ services:
       - "8080:80"
     volumes:
       - ./:/var/www/html
-    command: php -S 0.0.0.0:80 -t ./public
+    command: php -S 0.0.0.0:80 -t ./public ./public/router.php
     depends_on:
       - db
   db:

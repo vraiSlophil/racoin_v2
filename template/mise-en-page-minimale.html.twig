@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <link rel="stylesheet" href="{{ chemin }}stylesheets/master.css"/>
+    {% block head %}{% endblock %}
     <script src="{{ chemin }}js/jquery-1.11.1.min.js" id="sln_bar"></script>
     <title>RatCoin</title>
 </head>
@@ -20,4 +21,5 @@
 
 </div>
 {% include "pied-de-page.html.twig" %}
+{% block scripts %}{% endblock %}
 </body>

@@ -1,0 +1,435 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Racoin API",
+        "description": "Documentation OpenAPI générée à partir du code source.",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "/"
+        }
+    ],
+    "paths": {
+        "/api/annonce/{id}": {
+            "get": {
+                "tags": [
+                    "Annonces"
+                ],
+                "summary": "Récupère une annonce",
+                "operationId": "getAnnonceById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Identifiant de l’annonce",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64",
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Annonce trouvée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AnnonceApiDetail"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Annonce introuvable"
+                    }
+                }
+            }
+        },
+        "/api/annonces": {
+            "get": {
+                "tags": [
+                    "Annonces"
+                ],
+                "summary": "Liste les annonces",
+                "operationId": "listAnnonces",
+                "responses": {
+                    "200": {
+                        "description": "Liste des annonces",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/AnnonceApiSummary"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/categorie/{id}": {
+            "get": {
+                "tags": [
+                    "Catégories"
+                ],
+                "summary": "Récupère une catégorie et ses annonces",
+                "operationId": "getCategorieById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Identifiant de la catégorie",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64",
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Catégorie trouvée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CategorieApiDetail"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Catégorie introuvable"
+                    }
+                }
+            }
+        },
+        "/api/categories": {
+            "get": {
+                "tags": [
+                    "Catégories"
+                ],
+                "summary": "Liste les catégories",
+                "operationId": "listCategories",
+                "responses": {
+                    "200": {
+                        "description": "Liste des catégories",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/CategorieApiSummary"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/key": {
+            "get": {
+                "tags": [
+                    "Clés API"
+                ],
+                "summary": "Affiche le formulaire de génération de clé API",
+                "operationId": "showApiKeyForm",
+                "responses": {
+                    "200": {
+                        "description": "Page HTML du formulaire",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Clés API"
+                ],
+                "summary": "Génère une clé API",
+                "operationId": "generateApiKey",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "required": [
+                                    "nom"
+                                ],
+                                "properties": {
+                                    "nom": {
+                                        "type": "string",
+                                        "example": "Nathan",
+                                        "minLength": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Page HTML contenant la clé générée ou un message d’erreur",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "ResourceLinks": {
+                "required": [
+                    "self"
+                ],
+                "properties": {
+                    "self": {
+                        "required": [
+                            "href"
+                        ],
+                        "properties": {
+                            "href": {
+                                "type": "string",
+                                "example": "/api/annonce/1"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "CategorieEmbedded": {
+                "properties": {
+                    "id_categorie": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 1
+                    },
+                    "nom_categorie": {
+                        "type": "string",
+                        "example": "Véhicule",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "AnnonceurEmbedded": {
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "example": "bernard@example.fr",
+                        "nullable": true
+                    },
+                    "nom_annonceur": {
+                        "type": "string",
+                        "example": "Bernard",
+                        "nullable": true
+                    },
+                    "telephone": {
+                        "type": "string",
+                        "example": "0601020304",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "DepartementEmbedded": {
+                "properties": {
+                    "id_departement": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 55
+                    },
+                    "nom_departement": {
+                        "type": "string",
+                        "example": "Meuse",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "AnnonceApiSummary": {
+                "required": [
+                    "id_annonce",
+                    "prix",
+                    "titre",
+                    "ville",
+                    "links"
+                ],
+                "properties": {
+                    "id_annonce": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 1
+                    },
+                    "prix": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 1500,
+                        "nullable": true
+                    },
+                    "titre": {
+                        "type": "string",
+                        "example": "Peugeot 206",
+                        "nullable": true
+                    },
+                    "ville": {
+                        "type": "string",
+                        "example": "Bar-le-Duc",
+                        "nullable": true
+                    },
+                    "links": {
+                        "$ref": "#/components/schemas/ResourceLinks"
+                    }
+                },
+                "type": "object"
+            },
+            "AnnonceApiDetail": {
+                "required": [
+                    "id_annonce",
+                    "categorie",
+                    "annonceur",
+                    "departement",
+                    "prix",
+                    "date",
+                    "titre",
+                    "description",
+                    "ville",
+                    "links"
+                ],
+                "properties": {
+                    "id_annonce": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 1
+                    },
+                    "categorie": {
+                        "$ref": "#/components/schemas/CategorieEmbedded"
+                    },
+                    "annonceur": {
+                        "$ref": "#/components/schemas/AnnonceurEmbedded"
+                    },
+                    "departement": {
+                        "$ref": "#/components/schemas/DepartementEmbedded"
+                    },
+                    "prix": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 1500,
+                        "nullable": true
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2017-05-14",
+                        "nullable": true
+                    },
+                    "titre": {
+                        "type": "string",
+                        "example": "Peugeot 206",
+                        "nullable": true
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Vends citadine en bon état.",
+                        "nullable": true
+                    },
+                    "ville": {
+                        "type": "string",
+                        "example": "Bar-le-Duc",
+                        "nullable": true
+                    },
+                    "links": {
+                        "$ref": "#/components/schemas/ResourceLinks"
+                    }
+                },
+                "type": "object"
+            },
+            "CategorieApiSummary": {
+                "required": [
+                    "id_categorie",
+                    "nom_categorie",
+                    "links"
+                ],
+                "properties": {
+                    "id_categorie": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 1
+                    },
+                    "nom_categorie": {
+                        "type": "string",
+                        "example": "Véhicule",
+                        "nullable": true
+                    },
+                    "links": {
+                        "$ref": "#/components/schemas/ResourceLinks"
+                    }
+                },
+                "type": "object"
+            },
+            "CategorieApiDetail": {
+                "required": [
+                    "id_categorie",
+                    "nom_categorie",
+                    "links",
+                    "annonces"
+                ],
+                "properties": {
+                    "id_categorie": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 1
+                    },
+                    "nom_categorie": {
+                        "type": "string",
+                        "example": "Véhicule",
+                        "nullable": true
+                    },
+                    "links": {
+                        "$ref": "#/components/schemas/ResourceLinks"
+                    },
+                    "annonces": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AnnonceApiSummary"
+                        }
+                    }
+                },
+                "type": "object"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Annonces",
+            "description": "Consultation des annonces"
+        },
+        {
+            "name": "Catégories",
+            "description": "Consultation des catégories"
+        },
+        {
+            "name": "Clés API",
+            "description": "Génération de clé API via les écrans HTML existants"
+        }
+    ]
+}
