@@ -7,6 +7,12 @@ require __DIR__ . '/../vendor/autoload.php';
 use App\Controller\CategorieController;
 use App\Controller\DepartementController;
 use App\Db\Connection;
+use Monolog\Formatter\LineFormatter;
+use Monolog\Handler\StreamHandler;
+use Monolog\Level;
+use Monolog\Logger;
+use Monolog\Processor\PsrLogMessageProcessor;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Factory\AppFactory;
@@ -30,17 +36,31 @@ if ($basePath !== '') {
 }
 
 $loader = new FilesystemLoader(__DIR__ . '/../template');
-$twig   = new Environment($loader, [
+$twig = new Environment($loader, [
     'autoescape' => 'html',
 ]);
 
 $responseFactory = $app->getResponseFactory();
 
+$httpLogger = new Logger('http');
+
+$handler = new StreamHandler('php://stderr', Level::Info);
+$handler->setFormatter(new LineFormatter(
+    "[%datetime%] %channel%.%level_name%: %message%\n",
+    'Y-m-d H:i:sP',
+    true,
+    true
+));
+
+$httpLogger->pushHandler($handler);
+$httpLogger->pushProcessor(new PsrLogMessageProcessor());
+
+
 // Preserve legacy controllers that still render via echo while routes now return PSR-7 responses.
 $app->add(new OutputBufferingMiddleware(new StreamFactory(), OutputBufferingMiddleware::APPEND));
 
 $app->add(function (ServerRequestInterface $request, RequestHandlerInterface $handler) use ($responseFactory) {
-    $uri  = $request->getUri();
+    $uri = $request->getUri();
     $path = $uri->getPath();
 
     if ($path != '/' && str_ends_with($path, '/')) {
@@ -61,6 +81,32 @@ $app->add(function (ServerRequestInterface $request, RequestHandlerInterface $ha
 $app->addBodyParsingMiddleware();
 $app->addRoutingMiddleware();
 $app->addErrorMiddleware(true, true, true);
+
+$app->add(function (ServerRequestInterface $request, RequestHandlerInterface $handler) use ($httpLogger): ResponseInterface {
+    $startedAt = microtime(true);
+    $response = $handler->handle($request);
+
+    $uri = $request->getUri();
+    $target = $uri->getPath();
+    if ($uri->getQuery() !== '') {
+        $target .= '?' . $uri->getQuery();
+    }
+
+    $clientIp = (string) ($request->getServerParams()['REMOTE_ADDR'] ?? 'unknown');
+
+    $httpLogger->info(
+        '{ip} {method} {target} -> {status} ({duration_ms} ms)',
+        [
+            'ip' => $clientIp,
+            'method' => $request->getMethod(),
+            'target' => $target,
+            'status' => $response->getStatusCode(),
+            'duration_ms' => number_format((microtime(true) - $startedAt) * 1000, 1, '.', ''),
+        ]
+    );
+
+    return $response;
+});
 
 $chemin = $basePath === '' ? '/' : $basePath . '/';
 
