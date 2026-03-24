@@ -114,8 +114,9 @@ $app->group('/api', function () use ($app, $twig, $menu, $chemin, $cat) {
         $generateur->afficherFormulaireCle($twig, $menu, $chemin, $cat->listerCategories());
     });
 
-    $app->post('/key', function () use ($twig, $menu, $chemin, $cat) {
-        $nom        = $_POST['nom'];
+    $app->post('/key', function ($request) use ($twig, $menu, $chemin, $cat) {
+        $donnees    = $request->getParsedBody();
+        $nom        = (string) ($donnees['nom'] ?? '');
         $generateur = new CleApiController();
         $generateur->genererCle($twig, $menu, $chemin, $cat->listerCategories(), $nom);
     });

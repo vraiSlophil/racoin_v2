@@ -7,9 +7,13 @@ use model\Annonceur;
 use model\Categorie;
 use model\Departement;
 use model\Photo;
+use service\SuppressionAnnonceService;
 
 #[AllowDynamicProperties] class AnnonceController {
+    private SuppressionAnnonceService $suppressionAnnonceService;
+
     public function __construct(){
+        $this->suppressionAnnonceService = new SuppressionAnnonceService();
     }
     function afficherAnnonce($twig, $menu, $chemin, $n, $cat): void
     {
@@ -55,21 +59,18 @@ use model\Photo;
     }
 
 
-    function supprimerAnnonce($twig, $menu, $chemin, $n, $cat){
-        $this->annonce = Annonce::find($n);
-        $reponse = false;
-        if(password_verify($_POST["pass"],$this->annonce->mdp)){
-            $reponse = true;
-            photo::where('id_annonce', '=', $n)->delete();
-            $this->annonce->delete();
-
+    function supprimerAnnonce($twig, $menu, $chemin, $n, $cat, $motDePasse){
+        $resultat = $this->suppressionAnnonceService->supprimer($n, (string) $motDePasse);
+        if (!isset($resultat['annonce'])) {
+            echo "404";
+            return;
         }
 
         $template = $twig->load("annonce-suppression-resultat.html.twig");
         echo $template->render(array("breadcrumb" => $menu,
             "chemin" => $chemin,
-            "annonce" => $this->annonce,
-            "pass" => $reponse,
+            "annonce" => $resultat['annonce'],
+            "pass" => $resultat['motDePasseValide'],
             "categories" => $cat));
     }
 

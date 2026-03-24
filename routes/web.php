@@ -74,8 +74,9 @@ $app->get('/del/{n}', function ($request, $response, $arg) use ($twig, $menu, $c
 
 $app->post('/del/{n}', function ($request, $response, $arg) use ($twig, $menu, $chemin, $cat) {
     $n       = $arg['n'];
+    $donnees = $request->getParsedBody();
     $annonce = new AnnonceController();
-    $annonce->supprimerAnnonce($twig, $menu, $chemin, $n, $cat->listerCategories());
+    $annonce->supprimerAnnonce($twig, $menu, $chemin, $n, $cat->listerCategories(), (string) ($donnees['pass'] ?? ''));
 });
 
 $app->get('/cat/{n}', function ($request, $response, $arg) use ($twig, $menu, $chemin, $cat) {

@@ -2,9 +2,15 @@
 
 namespace controller;
 
-use model\ApiKey;
+use service\CleApiService;
 
 class CleApiController {
+    private CleApiService $cleApiService;
+
+    public function __construct()
+    {
+        $this->cleApiService = new CleApiService();
+    }
 
     function afficherFormulaireCle($twig, $menu, $chemin, $cat) {
         $template = $twig->load("cle-api-formulaire.html.twig");
@@ -18,9 +24,9 @@ class CleApiController {
     }
 
     function genererCle($twig, $menu, $chemin, $cat, $nom) {
-        $nospace_nom = str_replace(' ', '', $nom);
+        $resultat = $this->cleApiService->generer($nom);
 
-        if($nospace_nom === '') {
+        if(!$resultat['succes']) {
             $template = $twig->load("cle-api-erreur.html.twig");
             $menu = array(
                 array('href' => $chemin,
@@ -40,15 +46,7 @@ class CleApiController {
             );
 
             // Génere clé unique de 13 caractères
-            $key = uniqid();
-            // Ajouter clé dans la base
-            $apikey = new ApiKey();
-
-            $apikey->id_apikey = $key;
-            $apikey->name_key = htmlentities($nom);
-            $apikey->save();
-
-            echo $template->render(array("breadcrumb" => $menu, "chemin" => $chemin, "categories" => $cat, "key" => $key));
+            echo $template->render(array("breadcrumb" => $menu, "chemin" => $chemin, "categories" => $cat, "key" => $resultat['cle']));
         }
 
     }
