@@ -19,6 +19,16 @@ Connection::createConn();
 
 $app = AppFactory::create();
 
+$basePath = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/'));
+
+if ($basePath === '/' || $basePath === '.') {
+    $basePath = '';
+}
+
+if ($basePath !== '') {
+    $app->setBasePath($basePath);
+}
+
 $loader = new FilesystemLoader(__DIR__ . '/../template');
 $twig   = new Environment($loader, [
     'autoescape' => 'html',
@@ -52,14 +62,14 @@ $app->addBodyParsingMiddleware();
 $app->addRoutingMiddleware();
 $app->addErrorMiddleware(true, true, true);
 
+$chemin = $basePath === '' ? '/' : $basePath . '/';
+
 $menu = [
     [
-        'href' => './index.php',
+        'href' => $chemin,
         'text' => 'Accueil',
     ],
 ];
-
-$chemin = dirname($_SERVER['SCRIPT_NAME']);
 
 $cat = new CategorieController();
 $dpt = new DepartementController();

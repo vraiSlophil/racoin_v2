@@ -30,7 +30,7 @@ class CategorieController
             ->where('id_categorie', '=', $n)
             ->get();
 
-        return $this->presentateurAnnonceService->presenterListe($annonces, $chemin . '/img/noimg.png');
+        return $this->presentateurAnnonceService->presenterListe($annonces, $chemin . 'img/noimg.png');
     }
 
     public function afficherCategorie(Environment $twig, array $menu, string $chemin, array $cat, int|string $n): void
@@ -42,7 +42,7 @@ class CategorieController
                 'text' => 'Acceuil',
             ],
             [
-                'href' => $chemin . '/cat/' . $n,
+                'href' => $chemin . 'cat/' . $n,
                 'text' => Categorie::find($n)?->nom_categorie,
             ],
         ];

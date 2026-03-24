@@ -25,7 +25,7 @@ class CleApiController
                 'text' => 'Acceuil',
             ],
             [
-                'href' => $chemin . '/search',
+                'href' => $chemin . 'search',
                 'text' => 'Recherche',
             ],
         ];
@@ -48,7 +48,7 @@ class CleApiController
                 'text' => 'Acceuil',
             ],
             [
-                'href' => $chemin . '/search',
+                'href' => $chemin . 'search',
                 'text' => 'Recherche',
             ],
         ];

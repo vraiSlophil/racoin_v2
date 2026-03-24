@@ -20,7 +20,7 @@ $app->group('/api', function (RouteCollectorProxy $group) use ($twig, $menu, $ch
                 'text' => 'Acceuil',
             ],
             [
-                'href' => $chemin . '/api',
+                'href' => $chemin . 'api',
                 'text' => 'Api',
             ],
         ];

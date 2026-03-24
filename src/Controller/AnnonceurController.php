@@ -27,7 +27,7 @@ class AnnonceurController
         }
 
         $annonces = Annonce::where('id_annonceur', '=', $n)->get();
-        $annoncesPresentees = $this->presentateurAnnonceService->presenterListe($annonces, $chemin . '/img/noimg.png', false);
+        $annoncesPresentees = $this->presentateurAnnonceService->presenterListe($annonces, $chemin . 'img/noimg.png', false);
 
         $template = $twig->load('annonceur-detail.html.twig');
         echo $template->render([

@@ -40,11 +40,11 @@ class AnnonceController
                 'text' => 'Acceuil',
             ],
             [
-                'href' => $chemin . '/cat/' . $n,
+                'href' => $chemin . 'cat/' . $n,
                 'text' => Categorie::find($annonce->id_categorie)?->nom_categorie,
             ],
             [
-                'href' => $chemin . '/item/' . $n,
+                'href' => $chemin . 'item/' . $n,
                 'text' => $annonce->titre,
             ],
         ];

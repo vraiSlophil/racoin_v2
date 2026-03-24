@@ -31,13 +31,13 @@ class AccueilController
             'breadcrumb' => $menu,
             'chemin' => $chemin,
             'categories' => $cat,
-            'annonces' => $this->chargerAnnoncesAccueil(),
+            'annonces' => $this->chargerAnnoncesAccueil($chemin),
         ]);
     }
 
-    public function chargerAnnoncesAccueil(): array
+    public function chargerAnnoncesAccueil(string $chemin): array
     {
         $annonces = Annonce::with('Annonceur')->orderBy('id_annonce', 'desc')->take(12)->get();
-        return $this->presentateurAnnonceService->presenterListe($annonces, '/img/noimg.png');
+        return $this->presentateurAnnonceService->presenterListe($annonces, $chemin . 'img/noimg.png');
     }
 }

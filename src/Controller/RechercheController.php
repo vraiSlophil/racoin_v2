@@ -25,7 +25,7 @@ class RechercheController
                 'text' => 'Acceuil',
             ],
             [
-                'href' => $chemin . '/search',
+                'href' => $chemin . 'search',
                 'text' => 'Recherche',
             ],
         ];
@@ -46,7 +46,7 @@ class RechercheController
                 'text' => 'Acceuil',
             ],
             [
-                'href' => $chemin . '/search',
+                'href' => $chemin . 'search',
                 'text' => 'Résultats de la recherche',
             ],
         ];
