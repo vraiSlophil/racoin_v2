@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace controller;
+namespace App\Controller;
 
-use service\AjoutAnnonceService;
+use App\Service\AjoutAnnonceService;
 use Twig\Environment;
 
 class AjoutAnnonceController

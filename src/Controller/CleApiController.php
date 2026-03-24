@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace controller;
+namespace App\Controller;
 
-use service\CleApiService;
+use App\Service\CleApiService;
 use Twig\Environment;
 
 class CleApiController

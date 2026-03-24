@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace service;
+namespace App\Service;
 
+use App\Model\Annonce;
+use App\Model\Annonceur;
 use DateTimeImmutable;
 use DateTimeZone;
-use model\Annonce;
-use model\Annonceur;
 
 class AjoutAnnonceService
 {

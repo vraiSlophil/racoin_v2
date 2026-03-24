@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-use controller\AccueilController;
-use controller\AjoutAnnonceController;
-use controller\AnnonceController;
-use controller\AnnonceurController;
-use controller\CategorieController;
-use controller\RechercheController;
+use App\Controller\AccueilController;
+use App\Controller\AjoutAnnonceController;
+use App\Controller\AnnonceController;
+use App\Controller\AnnonceurController;
+use App\Controller\CategorieController;
+use App\Controller\RechercheController;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 

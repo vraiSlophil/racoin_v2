@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace service;
+namespace App\Service;
 
-use model\Annonce;
-use model\Categorie;
+use App\Model\Annonce;
+use App\Model\Categorie;
 
 class RechercheAnnonceService
 {

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace controller;
+namespace App\Controller;
 
-use model\Annonce;
-use model\Annonceur;
-use service\PresentateurAnnonceService;
+use App\Model\Annonce;
+use App\Model\Annonceur;
+use App\Service\PresentateurAnnonceService;
 use Twig\Environment;
 
 class AnnonceurController

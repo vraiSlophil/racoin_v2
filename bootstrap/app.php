@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 require __DIR__ . '/../vendor/autoload.php';
 
-use controller\CategorieController;
-use controller\DepartementController;
-use db\connection;
+use App\Controller\CategorieController;
+use App\Controller\DepartementController;
+use App\Db\Connection;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Factory\AppFactory;
@@ -15,7 +15,7 @@ use Slim\Psr7\Factory\StreamFactory;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 
-connection::createConn();
+Connection::createConn();
 
 $app = AppFactory::create();
 

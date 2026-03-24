@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace controller;
+namespace App\Controller;
 
-use model\Annonce;
-use service\PresentateurAnnonceService;
+use App\Model\Annonce;
+use App\Service\PresentateurAnnonceService;
 use Twig\Environment;
 
 class AccueilController

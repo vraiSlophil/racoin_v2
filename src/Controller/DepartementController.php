@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace controller;
+namespace App\Controller;
 
-use model\Departement;
+use App\Model\Departement;
 
 class DepartementController
 {

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace service;
+namespace App\Service;
 
-use model\ApiKey;
+use App\Model\ApiKey;
 
 class CleApiService
 {

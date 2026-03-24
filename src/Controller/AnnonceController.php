@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace controller;
+namespace App\Controller;
 
-use model\Annonce;
-use model\Annonceur;
-use model\Categorie;
-use model\Departement;
-use model\Photo;
-use service\ModificationAnnonceService;
-use service\SuppressionAnnonceService;
+use App\Model\Annonce;
+use App\Model\Annonceur;
+use App\Model\Categorie;
+use App\Model\Departement;
+use App\Model\Photo;
+use App\Service\ModificationAnnonceService;
+use App\Service\SuppressionAnnonceService;
 use Twig\Environment;
 
 class AnnonceController

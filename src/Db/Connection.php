@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace db;
+namespace App\Db;
 
 use Illuminate\Database\Capsule\Manager as DB;
 
-class connection
+class Connection
 {
     public static function createConn(): void
     {
         $capsule = new DB();
-        $capsule->addConnection(parse_ini_file(__DIR__ . '/../config/config.ini'));
+        $capsule->addConnection(parse_ini_file(dirname(__DIR__, 2) . '/config/config.ini'));
         $capsule->setAsGlobal();
         $capsule->bootEloquent();
     }

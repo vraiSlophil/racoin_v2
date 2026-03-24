@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace service;
+namespace App\Service;
 
-use model\Annonce;
-use model\Annonceur;
-use model\Photo;
+use App\Model\Annonce;
+use App\Model\Annonceur;
+use App\Model\Photo;
 
 class PresentateurAnnonceService
 {

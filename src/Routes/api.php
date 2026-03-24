@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-use controller\CleApiController;
-use model\Annonce;
-use model\Annonceur;
-use model\Categorie;
-use model\Departement;
+use App\Controller\CleApiController;
+use App\Model\Annonce;
+use App\Model\Annonceur;
+use App\Model\Categorie;
+use App\Model\Departement;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Routing\RouteCollectorProxy;

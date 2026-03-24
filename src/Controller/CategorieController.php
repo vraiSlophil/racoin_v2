@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace controller;
+namespace App\Controller;
 
-use model\Annonce;
-use model\Categorie;
-use service\PresentateurAnnonceService;
+use App\Model\Annonce;
+use App\Model\Categorie;
+use App\Service\PresentateurAnnonceService;
 use Twig\Environment;
 
 class CategorieController

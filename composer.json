@@ -14,11 +14,8 @@
         "phpunit/phpunit": "^11"
     },
     "autoload": {
-        "psr-0": {
-            "controller": "",
-            "model": "",
-            "service": "",
-            "db": ""
+        "psr-4": {
+            "App\\": "src/"
         }
     },
     "autoload-dev": {
