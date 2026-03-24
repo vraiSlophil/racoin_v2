@@ -6,6 +6,16 @@ class ValidateurAnnonceService
 {
     public function validerCreation(array $donnees): array
     {
+        return $this->valider($donnees, true);
+    }
+
+    public function validerModification(array $donnees): array
+    {
+        return $this->valider($donnees, false);
+    }
+
+    private function valider(array $donnees, bool $exigerMotDePasse): array
+    {
         $nom              = trim((string) ($donnees['nom'] ?? ''));
         $email            = trim((string) ($donnees['email'] ?? ''));
         $phone            = trim((string) ($donnees['phone'] ?? ''));
@@ -57,7 +67,7 @@ class ValidateurAnnonceService
         if (empty($prix) || !is_numeric($prix)) {
             $erreurs['priceAdvertiser'] = 'Veuillez entrer un prix';
         }
-        if (empty($motDePasse) || empty($confirmationMdp) || $motDePasse != $confirmationMdp) {
+        if ($exigerMotDePasse && (empty($motDePasse) || empty($confirmationMdp) || $motDePasse != $confirmationMdp)) {
             $erreurs['passwordAdvertiser'] = 'Les mots de passes ne sont pas identiques';
         }
 

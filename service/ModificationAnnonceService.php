@@ -1,0 +1,100 @@
+<?php
+
+namespace service;
+
+use DateTimeImmutable;
+use DateTimeZone;
+use model\Annonce;
+use model\Annonceur;
+use model\Categorie;
+use model\Departement;
+
+class ModificationAnnonceService
+{
+    private ValidateurAnnonceService $validateurAnnonceService;
+
+    public function __construct(?ValidateurAnnonceService $validateurAnnonceService = null)
+    {
+        $this->validateurAnnonceService = $validateurAnnonceService ?? new ValidateurAnnonceService();
+    }
+
+    public function chargerFormulaire(int|string $idAnnonce, string $motDePasse): array
+    {
+        $annonce = Annonce::find($idAnnonce);
+
+        if (!isset($annonce)) {
+            return [
+                'annonce' => null,
+                'annonceur' => null,
+                'motDePasseValide' => false,
+                'categorieCourante' => null,
+                'departementCourant' => null,
+            ];
+        }
+
+        return [
+            'annonce' => $annonce,
+            'annonceur' => Annonceur::find($annonce->id_annonceur),
+            'motDePasseValide' => password_verify($motDePasse, $annonce->mdp),
+            'categorieCourante' => Categorie::find($annonce->id_categorie)?->nom_categorie,
+            'departementCourant' => Departement::find($annonce->id_departement)?->nom_departement,
+        ];
+    }
+
+    public function modifier(int|string $idAnnonce, array $donnees): array
+    {
+        $annonce = Annonce::find($idAnnonce);
+
+        if (!isset($annonce)) {
+            return [
+                'succes' => false,
+                'introuvable' => true,
+                'erreurs' => [],
+            ];
+        }
+
+        $erreurs = $this->validateurAnnonceService->validerModification($donnees);
+
+        if ($erreurs !== []) {
+            return [
+                'succes' => false,
+                'introuvable' => false,
+                'erreurs' => $erreurs,
+            ];
+        }
+
+        $annonceur = Annonceur::find($annonce->id_annonceur);
+
+        $annonceur->email = htmlentities((string) ($donnees['email'] ?? ''));
+        $annonceur->nom_annonceur = htmlentities((string) ($donnees['nom'] ?? ''));
+        $annonceur->telephone = htmlentities((string) ($donnees['phone'] ?? ''));
+
+        $annonce->ville = htmlentities((string) ($donnees['ville'] ?? ''));
+        $annonce->id_departement = $donnees['departement'] ?? null;
+        $annonce->prix = htmlentities((string) ($donnees['price'] ?? ''));
+        $annonce->titre = htmlentities((string) ($donnees['title'] ?? ''));
+        $annonce->description = htmlentities((string) ($donnees['description'] ?? ''));
+        $annonce->id_categorie = $donnees['categorie'] ?? null;
+        $annonce->date = $this->dateCourante();
+
+        $nouveauMotDePasse = trim((string) ($donnees['psw'] ?? ''));
+        if ($nouveauMotDePasse !== '') {
+            $annonce->mdp = password_hash($nouveauMotDePasse, PASSWORD_DEFAULT);
+        }
+
+        $annonceur->save();
+        $annonce->save();
+
+        return [
+            'succes' => true,
+            'introuvable' => false,
+            'annonce' => $annonce,
+            'annonceur' => $annonceur,
+        ];
+    }
+
+    private function dateCourante(): string
+    {
+        return (new DateTimeImmutable('now', new DateTimeZone('Europe/Paris')))->format('Y-m-d');
+    }
+}

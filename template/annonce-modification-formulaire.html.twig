@@ -31,7 +31,7 @@
 
                     <label for="ville" class="villeLabel"></label>
                     <input type="text" name="ville" id="ville" placeholder="Ville" value="{{ annonce.ville | raw }}"/>
-                    <label for="departement" class="departementLabel">{{ dtpItem }}</label>
+                    <label for="departement" class="departementLabel">{{ dptItem }}</label>
                     <select name="departement">
                         <option selected="selected" value="{{ annonce.id_departement }}">{{ dptItem }}</option>
                         {% for d in departements %}

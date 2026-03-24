@@ -39,12 +39,12 @@ $app->post('/item/{id}/edit', function ($request, $response, $arg) use ($twig, $
     $id          = $arg['id'];
     $allPostVars = $request->getParsedBody();
     $annonce     = new AnnonceController();
-    $annonce->afficherFormulaireModification($twig, $menu, $chemin, $id, $allPostVars, $cat->listerCategories(), $dpt->listerDepartements());
+    $annonce->afficherFormulaireModification($twig, $menu, $chemin, $id, (string) ($allPostVars['pass'] ?? ''), $cat->listerCategories(), $dpt->listerDepartements());
 });
 
-$app->map(['GET, POST'], '/item/{id}/confirm', function ($request, $response, $arg) use ($twig, $menu, $chemin) {
+$app->post('/item/{id}/confirm', function ($request, $response, $arg) use ($twig, $menu, $chemin) {
     $id          = $arg['id'];
-    $allPostVars = $request->getParsedBody();
+    $allPostVars = $request->getParsedBody() ?? [];
     $annonce     = new AnnonceController();
     $annonce->modifierAnnonce($twig, $menu, $chemin, $id, $allPostVars);
 });
