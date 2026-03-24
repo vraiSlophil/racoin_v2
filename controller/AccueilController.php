@@ -3,12 +3,17 @@
 namespace controller;
 
 use model\Annonce;
-use model\Annonceur;
-use model\Photo;
+use service\PresentateurAnnonceService;
 
 class AccueilController
 {
     protected $annonce = array();
+    private PresentateurAnnonceService $presentateurAnnonceService;
+
+    public function __construct(?PresentateurAnnonceService $presentateurAnnonceService = null)
+    {
+        $this->presentateurAnnonceService = $presentateurAnnonceService ?? new PresentateurAnnonceService();
+    }
 
     public function afficherAccueil($twig, $menu, $chemin, $cat)
     {
@@ -31,22 +36,7 @@ class AccueilController
 
     public function chargerAnnoncesAccueil($chemin)
     {
-        $tmp     = Annonce::with("Annonceur")->orderBy('id_annonce', 'desc')->take(12)->get();
-        $annonce = [];
-        foreach ($tmp as $t) {
-            $t->nb_photo = Photo::where("id_annonce", "=", $t->id_annonce)->count();
-            if ($t->nb_photo > 0) {
-                $t->url_photo = Photo::select("url_photo")
-                    ->where("id_annonce", "=", $t->id_annonce)
-                    ->first()->url_photo;
-            } else {
-                $t->url_photo = '/img/noimg.png';
-            }
-            $t->nom_annonceur = Annonceur::select("nom_annonceur")
-                ->where("id_annonceur", "=", $t->id_annonceur)
-                ->first()->nom_annonceur;
-            array_push($annonce, $t);
-        }
-        $this->annonce = $annonce;
+        $tmp = Annonce::with('Annonceur')->orderBy('id_annonce', 'desc')->take(12)->get();
+        $this->annonce = $this->presentateurAnnonceService->presenterListe($tmp, '/img/noimg.png');
     }
 }

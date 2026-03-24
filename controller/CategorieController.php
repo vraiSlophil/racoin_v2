@@ -3,13 +3,18 @@
 namespace controller;
 
 use model\Annonce;
-use model\Annonceur;
 use model\Categorie;
-use model\Photo;
+use service\PresentateurAnnonceService;
 
 class CategorieController {
 
     protected $categories = array();
+    private PresentateurAnnonceService $presentateurAnnonceService;
+
+    public function __construct(?PresentateurAnnonceService $presentateurAnnonceService = null)
+    {
+        $this->presentateurAnnonceService = $presentateurAnnonceService ?? new PresentateurAnnonceService();
+    }
 
     public function listerCategories() {
         return Categorie::orderBy('nom_categorie')->get()->toArray();
@@ -17,22 +22,7 @@ class CategorieController {
 
     public function chargerContenuCategorie($chemin, $n) {
         $tmp = Annonce::with("Annonceur")->orderBy('id_annonce','desc')->where('id_categorie', "=", $n)->get();
-        $annonce = [];
-        foreach($tmp as $t) {
-            $t->nb_photo = Photo::where("id_annonce", "=", $t->id_annonce)->count();
-            if($t->nb_photo > 0){
-                $t->url_photo = Photo::select("url_photo")
-                    ->where("id_annonce", "=", $t->id_annonce)
-                    ->first()->url_photo;
-            }else{
-                $t->url_photo = $chemin.'/img/noimg.png';
-            }
-            $t->nom_annonceur = Annonceur::select("nom_annonceur")
-                ->where("id_annonceur", "=", $t->id_annonceur)
-                ->first()->nom_annonceur;
-            array_push($annonce, $t);
-        }
-        $this->annonce = $annonce;
+        $this->annonce = $this->presentateurAnnonceService->presenterListe($tmp, $chemin.'/img/noimg.png');
     }
 
     public function afficherCategorie($twig, $menu, $chemin, $cat, $n) {

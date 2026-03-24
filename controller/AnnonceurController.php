@@ -9,10 +9,13 @@
 namespace controller;
 use model\Annonce;
 use model\Annonceur;
-use model\Photo;
+use service\PresentateurAnnonceService;
 
 class AnnonceurController {
-    public function __construct(){
+    private PresentateurAnnonceService $presentateurAnnonceService;
+
+    public function __construct(?PresentateurAnnonceService $presentateurAnnonceService = null){
+        $this->presentateurAnnonceService = $presentateurAnnonceService ?? new PresentateurAnnonceService();
     }
     function afficherAnnonceur($twig, $menu, $chemin, $n, $cat) {
         $this->annonceur = annonceur::find($n);
@@ -22,19 +25,7 @@ class AnnonceurController {
         }
         $tmp = annonce::where('id_annonceur','=',$n)->get();
 
-        $annonces = [];
-        foreach ($tmp as $a) {
-            $a->nb_photo = Photo::where('id_annonce', '=', $a->id_annonce)->count();
-            if($a->nb_photo>0){
-                $a->url_photo = Photo::select('url_photo')
-                    ->where('id_annonce', '=', $a->id_annonce)
-                    ->first()->url_photo;
-            }else{
-                $a->url_photo = $chemin.'/img/noimg.png';
-            }
-
-            $annonces[] = $a;
-        }
+        $annonces = $this->presentateurAnnonceService->presenterListe($tmp, $chemin.'/img/noimg.png', false);
         $template = $twig->load("annonceur-detail.html.twig");
         echo $template->render(array('nom' => $this->annonceur,
             "chemin" => $chemin,
