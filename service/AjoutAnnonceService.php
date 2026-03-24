@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace service;
 
 use DateTimeImmutable;
@@ -30,16 +32,16 @@ class AjoutAnnonceService
         $annonce = new Annonce();
         $annonceur = new Annonceur();
 
-        $annonceur->email = htmlentities((string) ($donnees['email'] ?? ''));
-        $annonceur->nom_annonceur = htmlentities((string) ($donnees['nom'] ?? ''));
-        $annonceur->telephone = htmlentities((string) ($donnees['phone'] ?? ''));
+        $annonceur->email = $this->champTexte($donnees, 'email');
+        $annonceur->nom_annonceur = $this->champTexte($donnees, 'nom');
+        $annonceur->telephone = $this->champTexte($donnees, 'phone');
 
-        $annonce->ville = htmlentities((string) ($donnees['ville'] ?? ''));
+        $annonce->ville = $this->champTexte($donnees, 'ville');
         $annonce->id_departement = $donnees['departement'] ?? null;
-        $annonce->prix = htmlentities((string) ($donnees['price'] ?? ''));
+        $annonce->prix = $this->champTexte($donnees, 'price');
         $annonce->mdp = password_hash((string) ($donnees['psw'] ?? ''), PASSWORD_DEFAULT);
-        $annonce->titre = htmlentities((string) ($donnees['title'] ?? ''));
-        $annonce->description = htmlentities((string) ($donnees['description'] ?? ''));
+        $annonce->titre = $this->champTexte($donnees, 'title');
+        $annonce->description = $this->champTexte($donnees, 'description');
         $annonce->id_categorie = $donnees['categorie'] ?? null;
         $annonce->date = $this->dateCourante();
 
@@ -56,5 +58,10 @@ class AjoutAnnonceService
     private function dateCourante(): string
     {
         return (new DateTimeImmutable('now', new DateTimeZone('Europe/Paris')))->format('Y-m-d');
+    }
+
+    private function champTexte(array $donnees, string $cle): string
+    {
+        return trim((string) ($donnees[$cle] ?? ''));
     }
 }

@@ -1,11 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace model;
 
-class Region extends \Illuminate\Database\Eloquent\Model {
+use Illuminate\Database\Eloquent\Model;
+
+class Region extends Model
+{
     protected $table = 'region';
     protected $primaryKey = 'id_region';
     public $timestamps = false;
 }
-
-?>

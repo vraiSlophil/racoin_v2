@@ -1,7 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace controller;
-use AllowDynamicProperties;
+
 use model\Annonce;
 use model\Annonceur;
 use model\Categorie;
@@ -9,125 +11,171 @@ use model\Departement;
 use model\Photo;
 use service\ModificationAnnonceService;
 use service\SuppressionAnnonceService;
+use Twig\Environment;
 
-#[AllowDynamicProperties] class AnnonceController {
+class AnnonceController
+{
     private ModificationAnnonceService $modificationAnnonceService;
     private SuppressionAnnonceService $suppressionAnnonceService;
 
-    public function __construct(?SuppressionAnnonceService $suppressionAnnonceService = null, ?ModificationAnnonceService $modificationAnnonceService = null){
+    public function __construct(
+        ?SuppressionAnnonceService $suppressionAnnonceService = null,
+        ?ModificationAnnonceService $modificationAnnonceService = null,
+    ) {
         $this->suppressionAnnonceService = $suppressionAnnonceService ?? new SuppressionAnnonceService();
         $this->modificationAnnonceService = $modificationAnnonceService ?? new ModificationAnnonceService();
     }
-    function afficherAnnonce($twig, $menu, $chemin, $n, $cat): void
+
+    public function afficherAnnonce(Environment $twig, array $menu, string $chemin, int|string $n, array $cat): void
     {
-
-        $this->annonce = Annonce::find($n);
-        if(!isset($this->annonce)){
-            echo "404";
+        $annonce = Annonce::find($n);
+        if (!isset($annonce)) {
+            $this->renderNotFound();
             return;
         }
 
-        $menu = array(
-            array('href' => $chemin,
-                'text' => 'Acceuil'),
-            array('href' => $chemin."/cat/".$n,
-                'text' => Categorie::find($this->annonce->id_categorie)?->nom_categorie),
-            array('href' => $chemin."/item/".$n,
-            'text' => $this->annonce->titre)
-        );
+        $menu = [
+            [
+                'href' => $chemin,
+                'text' => 'Acceuil',
+            ],
+            [
+                'href' => $chemin . '/cat/' . $n,
+                'text' => Categorie::find($annonce->id_categorie)?->nom_categorie,
+            ],
+            [
+                'href' => $chemin . '/item/' . $n,
+                'text' => $annonce->titre,
+            ],
+        ];
 
-        $this->annonceur = Annonceur::find($this->annonce->id_annonceur);
-        $this->departement = Departement::find($this->annonce->id_departement );
-        $this->photo = Photo::where('id_annonce', '=', $n)->get();
-        $template = $twig->load("annonce-detail.html.twig");
-        echo $template->render(array("breadcrumb" => $menu,
-            "chemin" => $chemin,
-            "annonce" => $this->annonce,
-            "annonceur" => $this->annonceur,
-            "dep" => $this->departement->nom_departement,
-            "photo" => $this->photo,
-            "categories" => $cat));
+        $annonceur = Annonceur::find($annonce->id_annonceur);
+        $departement = Departement::find($annonce->id_departement);
+        $photos = Photo::where('id_annonce', '=', $n)->get();
+        $template = $twig->load('annonce-detail.html.twig');
+        echo $template->render([
+            'breadcrumb' => $menu,
+            'chemin' => $chemin,
+            'annonce' => $annonce,
+            'annonceur' => $annonceur,
+            'dep' => $departement?->nom_departement,
+            'photo' => $photos,
+            'categories' => $cat,
+        ]);
     }
 
-    function afficherFormulaireSuppression($twig, $menu, $chemin,$n){
-        $this->annonce = Annonce::find($n);
-        if(!isset($this->annonce)){
-            echo "404";
+    public function afficherFormulaireSuppression(Environment $twig, array $menu, string $chemin, int|string $n): void
+    {
+        $annonce = Annonce::find($n);
+        if (!isset($annonce)) {
+            $this->renderNotFound();
             return;
         }
-        $template = $twig->load("annonce-suppression-formulaire.html.twig");
-        echo $template->render(array("breadcrumb" => $menu,
-            "chemin" => $chemin,
-            "annonce" => $this->annonce));
+        $template = $twig->load('annonce-suppression-formulaire.html.twig');
+        echo $template->render([
+            'breadcrumb' => $menu,
+            'chemin' => $chemin,
+            'annonce' => $annonce,
+        ]);
     }
 
-
-    function supprimerAnnonce($twig, $menu, $chemin, $n, $cat, $motDePasse){
+    public function supprimerAnnonce(
+        Environment $twig,
+        array $menu,
+        string $chemin,
+        int|string $n,
+        array $cat,
+        string $motDePasse,
+    ): void {
         $resultat = $this->suppressionAnnonceService->supprimer($n, (string) $motDePasse);
         if (!isset($resultat['annonce'])) {
-            echo "404";
+            $this->renderNotFound();
             return;
         }
 
-        $template = $twig->load("annonce-suppression-resultat.html.twig");
-        echo $template->render(array("breadcrumb" => $menu,
-            "chemin" => $chemin,
-            "annonce" => $resultat['annonce'],
-            "pass" => $resultat['motDePasseValide'],
-            "categories" => $cat));
+        $template = $twig->load('annonce-suppression-resultat.html.twig');
+        echo $template->render([
+            'breadcrumb' => $menu,
+            'chemin' => $chemin,
+            'annonce' => $resultat['annonce'],
+            'pass' => $resultat['motDePasseValide'],
+            'categories' => $cat,
+        ]);
     }
 
-    function afficherAuthentificationModification($twig, $menu, $chemin, $id){
-        $this->annonce = Annonce::find($id);
-        if(!isset($this->annonce)){
-            echo "404";
+    public function afficherAuthentificationModification(
+        Environment $twig,
+        array $menu,
+        string $chemin,
+        int|string $id,
+    ): void {
+        $annonce = Annonce::find($id);
+        if (!isset($annonce)) {
+            $this->renderNotFound();
             return;
         }
-        $template = $twig->load("annonce-modification-authentification.html.twig");
-        echo $template->render(array("breadcrumb" => $menu,
-            "chemin" => $chemin,
-            "annonce" => $this->annonce));
+        $template = $twig->load('annonce-modification-authentification.html.twig');
+        echo $template->render([
+            'breadcrumb' => $menu,
+            'chemin' => $chemin,
+            'annonce' => $annonce,
+        ]);
     }
 
-    function afficherFormulaireModification($twig, $menu, $chemin, $n, $motDePasse, $cat, $dpt){
+    public function afficherFormulaireModification(
+        Environment $twig,
+        array $menu,
+        string $chemin,
+        int|string $n,
+        string $motDePasse,
+        array $cat,
+        array $dpt,
+    ): void {
         $resultat = $this->modificationAnnonceService->chargerFormulaire($n, (string) $motDePasse);
         if (!isset($resultat['annonce'])) {
-            echo "404";
+            $this->renderNotFound();
             return;
         }
 
-        $template = $twig->load("annonce-modification-formulaire.html.twig");
-        echo $template->render(array("breadcrumb" => $menu,
-            "chemin" => $chemin,
-            "annonce" => $resultat['annonce'],
-            "annonceur" => $resultat['annonceur'],
-            "pass" => $resultat['motDePasseValide'],
-            "categories" => $cat,
-            "departements" => $dpt,
-            "dptItem" => $resultat['departementCourant'],
-            "categItem" => $resultat['categorieCourante']));
+        $template = $twig->load('annonce-modification-formulaire.html.twig');
+        echo $template->render([
+            'breadcrumb' => $menu,
+            'chemin' => $chemin,
+            'annonce' => $resultat['annonce'],
+            'annonceur' => $resultat['annonceur'],
+            'pass' => $resultat['motDePasseValide'],
+            'categories' => $cat,
+            'departements' => $dpt,
+            'dptItem' => $resultat['departementCourant'],
+            'categItem' => $resultat['categorieCourante'],
+        ]);
     }
 
-    function modifierAnnonce($twig, $menu, $chemin, $id, $allPostVars){
+    public function modifierAnnonce(Environment $twig, array $menu, string $chemin, int|string $id, array $allPostVars): void
+    {
         $resultat = $this->modificationAnnonceService->modifier($id, $allPostVars);
 
         if ($resultat['introuvable']) {
-            echo "404";
+            $this->renderNotFound();
             return;
         }
 
         if (!$resultat['succes']) {
-
-            $template = $twig->load("annonce-formulaire-erreurs.html.twig");
-            echo $template->render(array(
-                    "breadcrumb" => $menu,
-                    "chemin" => $chemin,
-                    "errors" => $resultat['erreurs'])
-            );
+            $template = $twig->load('annonce-formulaire-erreurs.html.twig');
+            echo $template->render([
+                'breadcrumb' => $menu,
+                'chemin' => $chemin,
+                'errors' => $resultat['erreurs'],
+            ]);
             return;
         }
 
-        $template = $twig->load("annonce-modification-confirmation.html.twig");
-        echo $template->render(array("breadcrumb" => $menu, "chemin" => $chemin));
+        $template = $twig->load('annonce-modification-confirmation.html.twig');
+        echo $template->render(['breadcrumb' => $menu, 'chemin' => $chemin]);
+    }
+
+    private function renderNotFound(): void
+    {
+        echo '404';
     }
 }

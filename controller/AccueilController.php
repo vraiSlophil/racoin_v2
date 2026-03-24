@@ -1,13 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace controller;
 
 use model\Annonce;
 use service\PresentateurAnnonceService;
+use Twig\Environment;
 
 class AccueilController
 {
-    protected $annonce = array();
     private PresentateurAnnonceService $presentateurAnnonceService;
 
     public function __construct(?PresentateurAnnonceService $presentateurAnnonceService = null)
@@ -15,28 +17,27 @@ class AccueilController
         $this->presentateurAnnonceService = $presentateurAnnonceService ?? new PresentateurAnnonceService();
     }
 
-    public function afficherAccueil($twig, $menu, $chemin, $cat)
+    public function afficherAccueil(Environment $twig, array $menu, string $chemin, array $cat): void
     {
-        $template = $twig->load("liste-annonces.html.twig");
-        $menu     = array(
-            array(
+        $template = $twig->load('liste-annonces.html.twig');
+        $menu = [
+            [
                 'href' => $chemin,
-                'text' => 'Acceuil'
-            ),
-        );
+                'text' => 'Acceuil',
+            ],
+        ];
 
-        $this->chargerAnnoncesAccueil($chemin);
-        echo $template->render(array(
-            "breadcrumb" => $menu,
-            "chemin"     => $chemin,
-            "categories" => $cat,
-            "annonces"   => $this->annonce
-        ));
+        echo $template->render([
+            'breadcrumb' => $menu,
+            'chemin' => $chemin,
+            'categories' => $cat,
+            'annonces' => $this->chargerAnnoncesAccueil(),
+        ]);
     }
 
-    public function chargerAnnoncesAccueil($chemin)
+    public function chargerAnnoncesAccueil(): array
     {
-        $tmp = Annonce::with('Annonceur')->orderBy('id_annonce', 'desc')->take(12)->get();
-        $this->annonce = $this->presentateurAnnonceService->presenterListe($tmp, '/img/noimg.png');
+        $annonces = Annonce::with('Annonceur')->orderBy('id_annonce', 'desc')->take(12)->get();
+        return $this->presentateurAnnonceService->presenterListe($annonces, '/img/noimg.png');
     }
 }

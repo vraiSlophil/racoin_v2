@@ -1,0 +1,16 @@
+parameters:
+    level: 3
+    paths:
+        - bootstrap/app.php
+        - controller
+        - db
+        - model
+        - public/index.php
+        - service
+        - tests
+    tmpDir: tmp/phpstan
+    checkDynamicProperties: true
+    ignoreErrors:
+        - '#Call to an undefined static method model\\[A-Za-z_]+::[A-Za-z_]+\(\).#'
+        - '#Access to an undefined property model\\[A-Za-z_]+::\$[A-Za-z_]+\.#'
+        - '#Variable \$http_response_header on left side of \?\? always exists and is not nullable\.#'

@@ -1,43 +1,63 @@
 <?php
 
+declare(strict_types=1);
+
 namespace controller;
 
 use service\RechercheAnnonceService;
+use Twig\Environment;
 
-class RechercheController {
+class RechercheController
+{
     private RechercheAnnonceService $rechercheAnnonceService;
 
-    public function __construct()
+    public function __construct(?RechercheAnnonceService $rechercheAnnonceService = null)
     {
-        $this->rechercheAnnonceService = new RechercheAnnonceService();
+        $this->rechercheAnnonceService = $rechercheAnnonceService ?? new RechercheAnnonceService();
     }
 
-    function afficherFormulaireRecherche($twig, $menu, $chemin, $cat) {
-        $template = $twig->load("recherche-formulaire.html.twig");
-        $menu = array(
-            array('href' => $chemin,
-                'text' => 'Acceuil'),
-            array('href' => $chemin."/search",
-                'text' => "Recherche")
-        );
-        echo $template->render(array("breadcrumb" => $menu, "chemin" => $chemin, "categories" => $cat));
+    public function afficherFormulaireRecherche(Environment $twig, array $menu, string $chemin, array $cat): void
+    {
+        $template = $twig->load('recherche-formulaire.html.twig');
+        $menu = [
+            [
+                'href' => $chemin,
+                'text' => 'Acceuil',
+            ],
+            [
+                'href' => $chemin . '/search',
+                'text' => 'Recherche',
+            ],
+        ];
+
+        echo $template->render([
+            'breadcrumb' => $menu,
+            'chemin' => $chemin,
+            'categories' => $cat,
+        ]);
     }
 
-    function rechercherAnnonces($array, $twig, $menu, $chemin, $cat) {
-        $template = $twig->load("liste-annonces.html.twig");
-        $menu = array(
-            array('href' => $chemin,
-                'text' => 'Acceuil'),
-            array('href' => $chemin."/search",
-                'text' => "Résultats de la recherche")
-        );
+    public function rechercherAnnonces(array $array, Environment $twig, array $menu, string $chemin, array $cat): void
+    {
+        $template = $twig->load('liste-annonces.html.twig');
+        $menu = [
+            [
+                'href' => $chemin,
+                'text' => 'Acceuil',
+            ],
+            [
+                'href' => $chemin . '/search',
+                'text' => 'Résultats de la recherche',
+            ],
+        ];
 
-        $annonce = $this->rechercheAnnonceService->rechercher($array);
+        $annonces = $this->rechercheAnnonceService->rechercher($array);
 
-        echo $template->render(array("breadcrumb" => $menu, "chemin" => $chemin, "annonces" => $annonce, "categories" => $cat));
-
+        echo $template->render([
+            'breadcrumb' => $menu,
+            'chemin' => $chemin,
+            'annonces' => $annonces,
+            'categories' => $cat,
+        ]);
     }
-
 }
-
-?>

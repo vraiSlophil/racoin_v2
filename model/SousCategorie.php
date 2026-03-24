@@ -1,11 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace model;
 
-class SousCategorie extends \Illuminate\Database\Eloquent\Model {
+use Illuminate\Database\Eloquent\Model;
+
+class SousCategorie extends Model
+{
     protected $table = 'sous_categorie';
     protected $primaryKey = 'id_sous_categorie';
     public $timestamps = false;
 }
-
-?>

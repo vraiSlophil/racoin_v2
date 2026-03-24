@@ -10,6 +10,8 @@
 composer.phar
 vendor/
 .phpunit.cache/
+.php-cs-fixer.cache
+tmp/
 
 ### Linux ###
 *~

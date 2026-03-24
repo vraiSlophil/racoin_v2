@@ -1,23 +1,27 @@
 <?php
 
+declare(strict_types=1);
+
 namespace model;
 
-class Annonce extends \Illuminate\Database\Eloquent\Model {
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class Annonce extends Model
+{
     protected $table = 'annonce';
     protected $primaryKey = 'id_annonce';
     public $timestamps = false;
     public $links = null;
 
-
-    public function annonceur()
+    public function annonceur(): BelongsTo
     {
-        return $this->belongsTo('model\Annonceur', 'id_annonceur');
+        return $this->belongsTo(Annonceur::class, 'id_annonceur');
     }
 
-    public function photo()
+    public function photo(): HasMany
     {
-        return $this->hasMany('model\Photo', 'id_photo');
+        return $this->hasMany(Photo::class, 'id_annonce');
     }
-
 }
-?>

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace service;
 
 class ValidateurAnnonceService
@@ -67,7 +69,7 @@ class ValidateurAnnonceService
         if (empty($prix) || !is_numeric($prix)) {
             $erreurs['priceAdvertiser'] = 'Veuillez entrer un prix';
         }
-        if ($exigerMotDePasse && (empty($motDePasse) || empty($confirmationMdp) || $motDePasse != $confirmationMdp)) {
+        if ($exigerMotDePasse && (empty($motDePasse) || empty($confirmationMdp) || $motDePasse !== $confirmationMdp)) {
             $erreurs['passwordAdvertiser'] = 'Les mots de passes ne sont pas identiques';
         }
 

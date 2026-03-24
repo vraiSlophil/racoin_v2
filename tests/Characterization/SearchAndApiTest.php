@@ -19,9 +19,9 @@ final class SearchAndApiTest extends IntegrationTestCase
         ]);
 
         self::assertSame(200, $response->statusCode);
-        self::assertStringContainsString("Titre de l'annonce 1", $response->body);
-        self::assertStringContainsString("Titre de l'annonce 2", $response->body);
-        self::assertStringContainsString("Titre de l'annonce 3", $response->body);
+        self::assertStringContainsString('Titre de l&#039;annonce 1', $response->body);
+        self::assertStringContainsString('Titre de l&#039;annonce 2', $response->body);
+        self::assertStringContainsString('Titre de l&#039;annonce 3', $response->body);
     }
 
     public function test_search_can_filter_by_city_category_and_price_range(): void
@@ -35,9 +35,9 @@ final class SearchAndApiTest extends IntegrationTestCase
         ]);
 
         self::assertSame(200, $response->statusCode);
-        self::assertStringContainsString("Titre de l'annonce 2", $response->body);
-        self::assertStringNotContainsString("Titre de l'annonce 1", $response->body);
-        self::assertStringNotContainsString("Titre de l'annonce 3", $response->body);
+        self::assertStringContainsString('Titre de l&#039;annonce 2', $response->body);
+        self::assertStringNotContainsString('Titre de l&#039;annonce 1', $response->body);
+        self::assertStringNotContainsString('Titre de l&#039;annonce 3', $response->body);
     }
 
     public function test_api_annonce_returns_the_expected_json_payload_for_an_existing_annonce(): void

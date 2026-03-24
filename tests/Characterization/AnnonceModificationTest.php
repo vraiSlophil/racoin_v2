@@ -32,7 +32,7 @@ final class AnnonceModificationTest extends IntegrationTestCase
         self::assertStringNotContainsString('Modifier mon annonce', $response->body);
     }
 
-    public function test_edit_accepts_the_original_password_and_updates_the_annonce_with_sanitized_values(): void
+    public function test_edit_accepts_the_original_password_and_updates_the_annonce_with_raw_values_escaped_at_render_time(): void
     {
         $annonceId = $this->createAnnonce();
 
@@ -69,9 +69,9 @@ final class AnnonceModificationTest extends IntegrationTestCase
         );
 
         self::assertNotNull($updatedAnnonce);
-        self::assertSame('Alice &lt;b&gt;Modifiee&lt;/b&gt;', $updatedAnnonce['nom_annonceur']);
-        self::assertSame('Titre &lt;script&gt;update()&lt;/script&gt;', $updatedAnnonce['titre']);
-        self::assertSame('Description &lt;b&gt;mise a jour&lt;/b&gt;', $updatedAnnonce['description']);
+        self::assertSame('Alice <b>Modifiee</b>', $updatedAnnonce['nom_annonceur']);
+        self::assertSame('Titre <script>update()</script>', $updatedAnnonce['titre']);
+        self::assertSame('Description <b>mise a jour</b>', $updatedAnnonce['description']);
         self::assertSame('Metz', $updatedAnnonce['ville']);
         self::assertSame('84.5', (string) $updatedAnnonce['prix']);
         self::assertSame('3', (string) $updatedAnnonce['id_departement']);
@@ -79,6 +79,13 @@ final class AnnonceModificationTest extends IntegrationTestCase
         self::assertSame('alice.modifiee@example.fr', $updatedAnnonce['email']);
         self::assertSame('0611223344', $updatedAnnonce['telephone']);
         self::assertTrue(password_verify('secret-refactor', $updatedAnnonce['mdp']));
+
+        $detailResponse = $this->request('GET', sprintf('/item/%d', $annonceId));
+
+        self::assertSame(200, $detailResponse->statusCode);
+        self::assertStringContainsString('Titre &lt;script&gt;update()&lt;/script&gt;', $detailResponse->body);
+        self::assertStringContainsString('Description &lt;b&gt;mise a jour&lt;/b&gt;', $detailResponse->body);
+        self::assertStringNotContainsString('Titre <script>update()</script>', $detailResponse->body);
     }
 
     public function test_edit_rejects_an_invalid_payload_without_updating_the_annonce(): void

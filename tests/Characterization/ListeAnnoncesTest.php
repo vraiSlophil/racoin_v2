@@ -13,7 +13,7 @@ final class ListeAnnoncesTest extends IntegrationTestCase
         $response = $this->request('GET', '/');
 
         self::assertSame(200, $response->statusCode);
-        self::assertStringContainsString("Titre de l'annonce 3", $response->body);
+        self::assertStringContainsString('Titre de l&#039;annonce 3', $response->body);
         self::assertStringContainsString('Le 2014-12-17 par Danielle', $response->body);
         self::assertStringContainsString('0 photo(s)', $response->body);
         self::assertStringContainsString('3 photo(s)', $response->body);
@@ -25,10 +25,10 @@ final class ListeAnnoncesTest extends IntegrationTestCase
         $response = $this->request('GET', '/cat/3');
 
         self::assertSame(200, $response->statusCode);
-        self::assertStringContainsString("Titre de l'annonce 3", $response->body);
+        self::assertStringContainsString('Titre de l&#039;annonce 3', $response->body);
         self::assertStringContainsString('Le 2014-12-17 par Danielle', $response->body);
-        self::assertStringNotContainsString("Titre de l'annonce 1", $response->body);
-        self::assertStringNotContainsString("Titre de l'annonce 2", $response->body);
+        self::assertStringNotContainsString('Titre de l&#039;annonce 1', $response->body);
+        self::assertStringNotContainsString('Titre de l&#039;annonce 2', $response->body);
         self::assertStringContainsString('src="//img/noimg.png"', $response->body);
     }
 
@@ -40,7 +40,7 @@ final class ListeAnnoncesTest extends IntegrationTestCase
         self::assertStringContainsString('Bernard', $response->body);
         self::assertStringContainsString('annonceur1@exemple.ptdr', $response->body);
         self::assertStringContainsString('0607080910', $response->body);
-        self::assertStringContainsString("Titre de l'annonce 1", $response->body);
+        self::assertStringContainsString('Titre de l&#039;annonce 1', $response->body);
         self::assertStringContainsString('2 photo(s)', $response->body);
         self::assertStringContainsString('http://www.routard.com/images_contenu/communaute/Photos/publi/029/pt28199.jpg', $response->body);
     }

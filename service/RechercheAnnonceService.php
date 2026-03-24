@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace service;
 
 use model\Annonce;
@@ -7,7 +9,7 @@ use model\Categorie;
 
 class RechercheAnnonceService
 {
-    public function rechercher(array $filtres)
+    public function rechercher(array $filtres): iterable
     {
         if ($this->rechercheSansFiltre($filtres)) {
             return Annonce::all();

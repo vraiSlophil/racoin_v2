@@ -10,6 +10,5 @@ final readonly class HttpResponse
         public int $statusCode,
         public string $body,
         public array $headers,
-    ) {
-    }
+    ) {}
 }

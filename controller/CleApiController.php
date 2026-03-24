@@ -1,56 +1,63 @@
 <?php
 
+declare(strict_types=1);
+
 namespace controller;
 
 use service\CleApiService;
+use Twig\Environment;
 
-class CleApiController {
+class CleApiController
+{
     private CleApiService $cleApiService;
 
-    public function __construct()
+    public function __construct(?CleApiService $cleApiService = null)
     {
-        $this->cleApiService = new CleApiService();
+        $this->cleApiService = $cleApiService ?? new CleApiService();
     }
 
-    function afficherFormulaireCle($twig, $menu, $chemin, $cat) {
-        $template = $twig->load("cle-api-formulaire.html.twig");
-        $menu = array(
-            array('href' => $chemin,
-                'text' => 'Acceuil'),
-            array('href' => $chemin."/search",
-                'text' => "Recherche")
-        );
-        echo $template->render(array("breadcrumb" => $menu, "chemin" => $chemin, "categories" => $cat));
+    public function afficherFormulaireCle(Environment $twig, array $menu, string $chemin, array $cat): void
+    {
+        $template = $twig->load('cle-api-formulaire.html.twig');
+        $menu = [
+            [
+                'href' => $chemin,
+                'text' => 'Acceuil',
+            ],
+            [
+                'href' => $chemin . '/search',
+                'text' => 'Recherche',
+            ],
+        ];
+
+        echo $template->render([
+            'breadcrumb' => $menu,
+            'chemin' => $chemin,
+            'categories' => $cat,
+        ]);
     }
 
-    function genererCle($twig, $menu, $chemin, $cat, $nom) {
+    public function genererCle(Environment $twig, array $menu, string $chemin, array $cat, string $nom): void
+    {
         $resultat = $this->cleApiService->generer($nom);
+        $templateName = $resultat['succes'] ? 'cle-api-resultat.html.twig' : 'cle-api-erreur.html.twig';
+        $template = $twig->load($templateName);
+        $menu = [
+            [
+                'href' => $chemin,
+                'text' => 'Acceuil',
+            ],
+            [
+                'href' => $chemin . '/search',
+                'text' => 'Recherche',
+            ],
+        ];
 
-        if(!$resultat['succes']) {
-            $template = $twig->load("cle-api-erreur.html.twig");
-            $menu = array(
-                array('href' => $chemin,
-                    'text' => 'Acceuil'),
-                array('href' => $chemin."/search",
-                    'text' => "Recherche")
-            );
-
-            echo $template->render(array("breadcrumb" => $menu, "chemin" => $chemin, "categories" => $cat));
-        } else {
-            $template = $twig->load("cle-api-resultat.html.twig");
-            $menu = array(
-                array('href' => $chemin,
-                    'text' => 'Acceuil'),
-                array('href' => $chemin."/search",
-                    'text' => "Recherche")
-            );
-
-            // Génere clé unique de 13 caractères
-            echo $template->render(array("breadcrumb" => $menu, "chemin" => $chemin, "categories" => $cat, "key" => $resultat['cle']));
-        }
-
+        echo $template->render([
+            'breadcrumb' => $menu,
+            'chemin' => $chemin,
+            'categories' => $cat,
+            'key' => $resultat['cle'] ?? null,
+        ]);
     }
-
 }
-
-?>

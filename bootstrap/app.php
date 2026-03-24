@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 require __DIR__ . '/../vendor/autoload.php';
 
 use controller\CategorieController;
@@ -18,7 +20,9 @@ connection::createConn();
 $app = AppFactory::create();
 
 $loader = new FilesystemLoader(__DIR__ . '/../template');
-$twig   = new Environment($loader);
+$twig   = new Environment($loader, [
+    'autoescape' => 'html',
+]);
 
 $responseFactory = $app->getResponseFactory();
 
@@ -47,19 +51,6 @@ $app->add(function (ServerRequestInterface $request, RequestHandlerInterface $ha
 $app->addBodyParsingMiddleware();
 $app->addRoutingMiddleware();
 $app->addErrorMiddleware(true, true, true);
-
-if (!isset($_SESSION)) {
-    session_start();
-    $_SESSION['formStarted'] = true;
-}
-
-if (!isset($_SESSION['token'])) {
-    $token                  = md5(uniqid(rand(), true));
-    $_SESSION['token']      = $token;
-    $_SESSION['token_time'] = time();
-} else {
-    $token = $_SESSION['token'];
-}
 
 $menu = [
     [

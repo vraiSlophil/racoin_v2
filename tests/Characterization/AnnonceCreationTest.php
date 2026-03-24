@@ -9,7 +9,7 @@ use Tests\IntegrationTestCase;
 
 final class AnnonceCreationTest extends IntegrationTestCase
 {
-    public function test_add_accepts_a_valid_payload_and_persists_a_sanitized_annonce(): void
+    public function test_add_accepts_a_valid_payload_and_persists_raw_values_while_escaping_html_at_render_time(): void
     {
         $payload = $this->validPayload();
 
@@ -29,13 +29,20 @@ final class AnnonceCreationTest extends IntegrationTestCase
         );
 
         self::assertNotNull($createdAnnonce);
-        self::assertSame('Alice &lt;b&gt;Martin&lt;/b&gt;', $createdAnnonce['nom_annonceur']);
-        self::assertSame('Velo &lt;script&gt;alert(1)&lt;/script&gt;', $createdAnnonce['titre']);
-        self::assertSame('Description &lt;b&gt;detaillee&lt;/b&gt;', $createdAnnonce['description']);
+        self::assertSame('Alice <b>Martin</b>', $createdAnnonce['nom_annonceur']);
+        self::assertSame('Velo <script>alert(1)</script>', $createdAnnonce['titre']);
+        self::assertSame('Description <b>detaillee</b>', $createdAnnonce['description']);
         self::assertSame('Nancy', $createdAnnonce['ville']);
         self::assertSame('123.45', (string) $createdAnnonce['prix']);
         self::assertNotSame($payload['psw'], $createdAnnonce['mdp']);
         self::assertTrue(password_verify($payload['psw'], $createdAnnonce['mdp']));
+
+        $detailResponse = $this->request('GET', sprintf('/item/%d', $createdAnnonce['id_annonce']));
+
+        self::assertSame(200, $detailResponse->statusCode);
+        self::assertStringContainsString('Velo &lt;script&gt;alert(1)&lt;/script&gt;', $detailResponse->body);
+        self::assertStringContainsString('Description &lt;b&gt;detaillee&lt;/b&gt;', $detailResponse->body);
+        self::assertStringNotContainsString('Velo <script>alert(1)</script>', $detailResponse->body);
     }
 
     #[DataProvider('invalidPayloadProvider')]

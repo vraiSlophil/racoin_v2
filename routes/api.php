@@ -1,16 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 use controller\CleApiController;
 use model\Annonce;
 use model\Annonceur;
 use model\Categorie;
 use model\Departement;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Slim\Routing\RouteCollectorProxy;
 
 $app->group('/api', function (RouteCollectorProxy $group) use ($twig, $menu, $chemin, $cat) {
-    $group->get('', function ($request, $response) use ($twig, $chemin) {
+    $group->get('', function (ServerRequestInterface $request, ResponseInterface $response) use ($twig, $chemin): ResponseInterface {
         $template = $twig->load('api-documentation.html.twig');
-        $menu     = [
+        $menu = [
             [
                 'href' => $chemin,
                 'text' => 'Acceuil',
@@ -27,41 +31,43 @@ $app->group('/api', function (RouteCollectorProxy $group) use ($twig, $menu, $ch
     });
 
     $group->group('/annonce', function (RouteCollectorProxy $group) {
-        $group->get('/{id}', function ($request, $response, $arg) {
-            $id          = $arg['id'];
+        $group->get('/{id}', function (ServerRequestInterface $request, ResponseInterface $response, array $arg): ResponseInterface {
+            $id = $arg['id'];
             $annonceList = ['id_annonce', 'id_categorie as categorie', 'id_annonceur as annonceur', 'id_departement as departement', 'prix', 'date', 'titre', 'description', 'ville'];
-            $return      = Annonce::select($annonceList)->find($id);
+            $annonce = Annonce::select($annonceList)->find($id);
 
-            if (!isset($return)) {
+            if (!isset($annonce)) {
                 return $response->withStatus(404);
             }
 
-            $return->categorie   = Categorie::find($return->categorie);
-            $return->annonceur   = Annonceur::select('email', 'nom_annonceur', 'telephone')->find($return->annonceur);
-            $return->departement = Departement::select('id_departement', 'nom_departement')->find($return->departement);
-            $links               = [];
-            $links['self']['href'] = '/api/annonce/' . $return->id_annonce;
-            $return->links       = $links;
+            $payload = $annonce->toArray();
+            $payload['categorie'] = Categorie::find($annonce->categorie)?->toArray();
+            $payload['annonceur'] = Annonceur::select('email', 'nom_annonceur', 'telephone')->find($annonce->annonceur)?->toArray();
+            $payload['departement'] = Departement::select('id_departement', 'nom_departement')->find($annonce->departement)?->toArray();
+            $payload['links'] = [
+                'self' => [
+                    'href' => '/api/annonce/' . $annonce->id_annonce,
+                ],
+            ];
 
-            $response->getBody()->write($return->toJson());
+            $response->getBody()->write(json_encode($payload, JSON_THROW_ON_ERROR));
 
             return $response->withHeader('Content-Type', 'application/json');
         });
     });
 
     $group->group('/annonces', function (RouteCollectorProxy $group) {
-        $group->get('', function ($request, $response) {
+        $group->get('', function (ServerRequestInterface $request, ResponseInterface $response): ResponseInterface {
             $annonceList = ['id_annonce', 'prix', 'titre', 'ville'];
             $annonces    = Annonce::all($annonceList);
-            $links       = [];
 
             foreach ($annonces as $annonce) {
-                $links['self']['href'] = '/api/annonce/' . $annonce->id_annonce;
-                $annonce->links        = $links;
+                $annonce->links = [
+                    'self' => [
+                        'href' => '/api/annonce/' . $annonce->id_annonce,
+                    ],
+                ];
             }
-
-            $links['self']['href'] = '/api/annonces/';
-            $annonces->links       = $links;
 
             $response->getBody()->write($annonces->toJson());
 
@@ -70,11 +76,17 @@ $app->group('/api', function (RouteCollectorProxy $group) use ($twig, $menu, $ch
     });
 
     $group->group('/categorie', function (RouteCollectorProxy $group) {
-        $group->get('/{id}', function ($request, $response, $arg) {
-            $id       = $arg['id'];
+        $group->get('/{id}', function (ServerRequestInterface $request, ResponseInterface $response, array $arg): ResponseInterface {
+            $id = $arg['id'];
             $annonces = Annonce::select('id_annonce', 'prix', 'titre', 'ville')
                 ->where('id_categorie', '=', $id)
                 ->get();
+            $categorie = Categorie::find($id);
+
+            if (!isset($categorie)) {
+                return $response->withStatus(404);
+            }
+
             $links = [];
 
             foreach ($annonces as $annonce) {
@@ -82,7 +94,6 @@ $app->group('/api', function (RouteCollectorProxy $group) use ($twig, $menu, $ch
                 $annonce->links        = $links;
             }
 
-            $categorie              = Categorie::find($id);
             $links['self']['href']  = '/api/categorie/' . $id;
             $categorie->links       = $links;
             $categorie->annonces    = $annonces;
@@ -94,17 +105,16 @@ $app->group('/api', function (RouteCollectorProxy $group) use ($twig, $menu, $ch
     });
 
     $group->group('/categories', function (RouteCollectorProxy $group) {
-        $group->get('', function ($request, $response) {
+        $group->get('', function (ServerRequestInterface $request, ResponseInterface $response): ResponseInterface {
             $categories = Categorie::get();
-            $links      = [];
 
             foreach ($categories as $categorie) {
-                $links['self']['href'] = '/api/categorie/' . $categorie->id_categorie;
-                $categorie->links      = $links;
+                $categorie->links = [
+                    'self' => [
+                        'href' => '/api/categorie/' . $categorie->id_categorie,
+                    ],
+                ];
             }
-
-            $links['self']['href'] = '/api/categories/';
-            $categories->links     = $links;
 
             $response->getBody()->write($categories->toJson());
 
@@ -112,15 +122,16 @@ $app->group('/api', function (RouteCollectorProxy $group) use ($twig, $menu, $ch
         });
     });
 
-    $group->get('/key', function ($request, $response) use ($twig, $menu, $chemin, $cat) {
+    $group->get('/key', function (ServerRequestInterface $request, ResponseInterface $response) use ($twig, $menu, $chemin, $cat): ResponseInterface {
         $generateur = new CleApiController();
         $generateur->afficherFormulaireCle($twig, $menu, $chemin, $cat->listerCategories());
         return $response;
     });
 
-    $group->post('/key', function ($request, $response) use ($twig, $menu, $chemin, $cat) {
-        $donnees    = $request->getParsedBody();
-        $nom        = (string) ($donnees['nom'] ?? '');
+    $group->post('/key', function (ServerRequestInterface $request, ResponseInterface $response) use ($twig, $menu, $chemin, $cat): ResponseInterface {
+        $donnees = $request->getParsedBody();
+        $donnees = is_array($donnees) ? $donnees : [];
+        $nom = (string) ($donnees['nom'] ?? '');
         $generateur = new CleApiController();
         $generateur->genererCle($twig, $menu, $chemin, $cat->listerCategories(), $nom);
         return $response;
