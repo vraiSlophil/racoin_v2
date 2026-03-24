@@ -5,24 +5,27 @@ require __DIR__ . '/../vendor/autoload.php';
 use controller\CategorieController;
 use controller\DepartementController;
 use db\connection;
-use Slim\App;
-use Slim\Http\Request;
-use Slim\Http\Response;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+use Slim\Factory\AppFactory;
+use Slim\Middleware\OutputBufferingMiddleware;
+use Slim\Psr7\Factory\StreamFactory;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 
 connection::createConn();
 
-$app = new App([
-    'settings' => [
-        'displayErrorDetails' => true,
-    ],
-]);
+$app = AppFactory::create();
 
 $loader = new FilesystemLoader(__DIR__ . '/../template');
 $twig   = new Environment($loader);
 
-$app->add(function (Request $request, Response $response, $next) {
+$responseFactory = $app->getResponseFactory();
+
+// Preserve legacy controllers that still render via echo while routes now return PSR-7 responses.
+$app->add(new OutputBufferingMiddleware(new StreamFactory(), OutputBufferingMiddleware::APPEND));
+
+$app->add(function (ServerRequestInterface $request, RequestHandlerInterface $handler) use ($responseFactory) {
     $uri  = $request->getUri();
     $path = $uri->getPath();
 
@@ -30,14 +33,20 @@ $app->add(function (Request $request, Response $response, $next) {
         $uri = $uri->withPath(substr($path, 0, -1));
 
         if ($request->getMethod() == 'GET') {
-            return $response->withRedirect((string) $uri, 301);
+            return $responseFactory
+                ->createResponse(301)
+                ->withHeader('Location', (string) $uri);
         }
 
-        return $next($request->withUri($uri), $response);
+        return $handler->handle($request->withUri($uri));
     }
 
-    return $next($request, $response);
+    return $handler->handle($request);
 });
+
+$app->addBodyParsingMiddleware();
+$app->addRoutingMiddleware();
+$app->addErrorMiddleware(true, true, true);
 
 if (!isset($_SESSION)) {
     session_start();

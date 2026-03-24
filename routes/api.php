@@ -5,26 +5,29 @@ use model\Annonce;
 use model\Annonceur;
 use model\Categorie;
 use model\Departement;
+use Slim\Routing\RouteCollectorProxy;
 
-$app->get('/api(/)', function () use ($twig, $chemin) {
-    $template = $twig->load('api-documentation.html.twig');
-    $menu     = [
-        [
-            'href' => $chemin,
-            'text' => 'Acceuil',
-        ],
-        [
-            'href' => $chemin . '/api',
-            'text' => 'Api',
-        ],
-    ];
+$app->group('/api', function (RouteCollectorProxy $group) use ($twig, $menu, $chemin, $cat) {
+    $group->get('', function ($request, $response) use ($twig, $chemin) {
+        $template = $twig->load('api-documentation.html.twig');
+        $menu     = [
+            [
+                'href' => $chemin,
+                'text' => 'Acceuil',
+            ],
+            [
+                'href' => $chemin . '/api',
+                'text' => 'Api',
+            ],
+        ];
 
-    echo $template->render(['breadcrumb' => $menu, 'chemin' => $chemin]);
-});
+        echo $template->render(['breadcrumb' => $menu, 'chemin' => $chemin]);
 
-$app->group('/api', function () use ($app, $twig, $menu, $chemin, $cat) {
-    $app->group('/annonce', function () use ($app) {
-        $app->get('/{id}', function ($request, $response, $arg) {
+        return $response;
+    });
+
+    $group->group('/annonce', function (RouteCollectorProxy $group) {
+        $group->get('/{id}', function ($request, $response, $arg) {
             $id          = $arg['id'];
             $annonceList = ['id_annonce', 'id_categorie as categorie', 'id_annonceur as annonceur', 'id_departement as departement', 'prix', 'date', 'titre', 'description', 'ville'];
             $return      = Annonce::select($annonceList)->find($id);
@@ -46,8 +49,8 @@ $app->group('/api', function () use ($app, $twig, $menu, $chemin, $cat) {
         });
     });
 
-    $app->group('/annonces(/)', function () use ($app) {
-        $app->get('/', function ($request, $response) {
+    $group->group('/annonces', function (RouteCollectorProxy $group) {
+        $group->get('', function ($request, $response) {
             $annonceList = ['id_annonce', 'prix', 'titre', 'ville'];
             $annonces    = Annonce::all($annonceList);
             $links       = [];
@@ -66,8 +69,8 @@ $app->group('/api', function () use ($app, $twig, $menu, $chemin, $cat) {
         });
     });
 
-    $app->group('/categorie', function () use ($app) {
-        $app->get('/{id}', function ($request, $response, $arg) {
+    $group->group('/categorie', function (RouteCollectorProxy $group) {
+        $group->get('/{id}', function ($request, $response, $arg) {
             $id       = $arg['id'];
             $annonces = Annonce::select('id_annonce', 'prix', 'titre', 'ville')
                 ->where('id_categorie', '=', $id)
@@ -90,8 +93,8 @@ $app->group('/api', function () use ($app, $twig, $menu, $chemin, $cat) {
         });
     });
 
-    $app->group('/categories(/)', function () use ($app) {
-        $app->get('/', function ($request, $response) {
+    $group->group('/categories', function (RouteCollectorProxy $group) {
+        $group->get('', function ($request, $response) {
             $categories = Categorie::get();
             $links      = [];
 
@@ -109,15 +112,17 @@ $app->group('/api', function () use ($app, $twig, $menu, $chemin, $cat) {
         });
     });
 
-    $app->get('/key', function () use ($twig, $menu, $chemin, $cat) {
+    $group->get('/key', function ($request, $response) use ($twig, $menu, $chemin, $cat) {
         $generateur = new CleApiController();
         $generateur->afficherFormulaireCle($twig, $menu, $chemin, $cat->listerCategories());
+        return $response;
     });
 
-    $app->post('/key', function ($request) use ($twig, $menu, $chemin, $cat) {
+    $group->post('/key', function ($request, $response) use ($twig, $menu, $chemin, $cat) {
         $donnees    = $request->getParsedBody();
         $nom        = (string) ($donnees['nom'] ?? '');
         $generateur = new CleApiController();
         $generateur->genererCle($twig, $menu, $chemin, $cat->listerCategories(), $nom);
+        return $response;
     });
 });
